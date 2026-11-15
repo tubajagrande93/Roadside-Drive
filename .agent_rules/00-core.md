@@ -6,7 +6,7 @@ Roadside Drive is intended as a modular driving simulation. Observed product ent
 
 ## Permission boundaries and explicit operator approval
 
-UAOS-B1 is project-scoped. Obtain scope for product work, migrations, CI privileges, deployment and new remote refs. Check the actual destination and file inventory before publication.
+UAOS-B1 is project-scoped. Obtain product scope, and separate authority for migrations, CI privileges and deployment. Routine repository publication and authorized refs follow the standing [publication policy](30-evidence-and-publication.md). Check the actual destination and file inventory before publication.
 
 ## Source/Git precedence; source facts vs intended behavior
 

@@ -14,7 +14,7 @@ Identify earliest authoritative boundary, ownership, affected data and rollback.
 
 ## CLOSEOUT
 
-Verify targeted and preservation gates. Update durable docs at the right cadence. Write checkpoint and report with exact source, commands, exit codes, open gates and one next action.
+Verify targeted and preservation gates. Update durable docs at the right cadence. Write checkpoint and report with exact source, commands, exit codes, open gates and one next action. Apply the standing publication policy to source progress and the sanitized handoff.
 
 ## Context pressure and checkpoints
 

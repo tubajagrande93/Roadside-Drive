@@ -340,10 +340,10 @@ def format_report(state, live, status, next_action, timestamp):
         ("BASELINE_SHA", state["BASELINE_SHA"]),
         ("DIRTY_AT_ENTRY", state["DIRTY_AT_ENTRY"]),
         ("HANDOFF_PUBLICATION", PUBLICATION),
-        ("PUBLICATION_REASON", "REMOTE_UNAVAILABLE_OR_UNAUTHORIZED"),
+        ("PUBLICATION_REASON", "LOCAL_REPORT_CREATED_WITHOUT_REMOTE_OPERATION"),
         (
             "HANDOFF_RETRY",
-            "Verify separate output-ref authorization before retrying this local report.",
+            "Follow the repository publication policy for the sanitized public summary.",
         ),
         ("OPERATOR_ACCEPTANCE", "PENDING"),
     ]

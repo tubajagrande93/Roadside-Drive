@@ -56,4 +56,4 @@ uv run --locked --no-sync python tools/agentops.py route --task 'ROADSIDE DRIVE 
 uv run --locked --no-sync python tools/agentops.py powerbrain --task 'ROADSIDE DRIVE — GATE 01 WORLD BUILDER FOUNDATION' --out output/agentops/gate01_powerbrain.md
 ```
 
-Local handoffs, plans and checkpoint data are ignored. A new clone can regenerate the plan inputs from the tracked context and current source.
+Read the [verified public handoff](https://github.com/tubajagrande93/Roadside-Drive/blob/agent-output/AgentOutput/LATEST.md) for GitHub-only continuation. Detailed local plans, checkpoints and raw evidence are ignored. Follow the [publication policy](.agent_rules/30-evidence-and-publication.md) for source and report branches.
