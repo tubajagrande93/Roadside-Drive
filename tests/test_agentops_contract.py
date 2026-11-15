@@ -403,9 +403,9 @@ class Contract(unittest.TestCase):
             "--gate",
             "SMOKE",
             "--",
-            Path(sys.executable).name,
+            "sh",
             "-c",
-            "raise SystemExit(7)",
+            "exit 7",
             code=7,
         )
         self.assertEqual(failed["record"]["exit"], 7)
@@ -416,9 +416,7 @@ class Contract(unittest.TestCase):
             "--gate",
             "SMOKE",
             "--",
-            Path(sys.executable).name,
-            "-c",
-            "print('fixture')",
+            "true",
         )
         self.checkpoint("--evidence", proof["evidence"], status="COMPLETE")
         self.assertEqual(
