@@ -10,7 +10,7 @@ Latest explicit operator authorization determines scope. Live Git/source establi
 
 ## GM-003 Product purpose and boundaries
 
-Operator intent is a modular real-world driving simulator, initially a precision World Builder for 500–1000 metres of Banja Luka, Bosnia and Herzegovina. Planned work includes OSM ingestion, georeferenced metric editable geometry, collisions and physical surfaces, CS 1.6-style spectator free flight, object inspection and measurement, reversible corrections, provenance/confidence, repeatability and Unreal import. This is roadmap intent. Local descriptor and default configurations were observed. Pipeline/runtime implementation is TO_VERIFY.
+Operator intent is a modular real-world driving simulator, initially a precision World Builder for 500–1000 metres of Banja Luka, Bosnia and Herzegovina. Planned work includes OSM ingestion, georeferenced metric editable geometry, collisions and physical surfaces, CS 1.6-style spectator free flight, object inspection and measurement, reversible corrections, provenance/confidence, repeatability and Unreal import. This is roadmap intent. INIT 00B tracks the descriptor, default configurations, and locked geospatial dependencies. Pipeline/runtime implementation is TO_VERIFY.
 
 ## GM-004 Architecture and writers
 
@@ -18,7 +18,7 @@ Operator intent is a modular real-world driving simulator, initially a precision
 
 ## GM-005 Protection and non-goals
 
-Preserve existing Unreal files, workspace configuration, local environments, raw/cached/processed geographic data and assets. Agent infrastructure is the bootstrap scope. Product logic, data migration, releases and deployment require separate authority.
+Preserve existing Unreal identities, workspace configuration, local environments, raw/cached/processed geographic data and assets. INIT 00B publishes project configuration and documentation. Product implementation, data migration, releases and deployment require separate authority.
 
 ## GM-006 Invariants and acceptance
 
@@ -26,17 +26,18 @@ Preserve the local Unreal project identity and LFS mappings, with anchors in the
 
 ## GM-007 Build, test, run and release
 
-Run `python3 -m unittest discover -s tests -p test_agentops_contract.py -v` and `python3 tools/agentops.py verify`. Local GIS can be checked via `.venv/bin/python` without syncing. Engine Build.version and project config are static evidence. Headless Unreal automation, app packaging, CI and production releases are open.
+Run `python3 -m unittest discover -s tests -p test_agentops_contract.py -v` and `python3 tools/agentops.py verify`. Recreate the local Python environment and check GIS imports using the [README](README.md#set-up-a-local-checkout). Engine Build.version and project config are static evidence. Headless Unreal automation, app packaging, CI and production releases are open.
 
 ## GM-008 Decisions
 
 - 2026-11-15, D001. Install the UAOS-B1 source-first method using repository-local Markdown/JSON and a standard-library CLI. The PDF credits a reference methodology. These commands are a new implementation.
 - 2026-11-15, D002. Retain a local ignored handoff queue and checkpoint. A separate remote handoff ref requires explicit scope.
 - 2026-11-15, D003. Preserve untracked product files outside the infrastructure commit. GitHub reported no existing main ref at discovery.
+- 2026-11-16, D004. The operator approved the project foundation for public main in INIT 00B. Normalize the Android File Server settings for publication and preserve the original locally. Gate 01 implementation remains a separate task.
 
 ## GM-009 Milestones and baseline
 
-B0 snapshot was an unborn main with no indexed files. The first tracked bootstrap commit captures this snapshot; subsequent observations belong in [current state](_agent_context/CURRENT_STATE.md) and local immutable reports.
+B0 snapshot was an unborn main with no indexed files. The first tracked bootstrap commit captures this snapshot. INIT 00B adds the validated Unreal and Python foundation. Subsequent source identity and verification belong in [current state](_agent_context/CURRENT_STATE.md) and local immutable reports.
 
 ## GM-010 Failures and false PASS
 

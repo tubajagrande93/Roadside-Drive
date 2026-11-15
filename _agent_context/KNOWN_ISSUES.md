@@ -2,10 +2,12 @@
 
 | ID | Status | Owner | Reproduction / next evidence |
 | --- | --- | --- | --- |
-| UE-01 | NOT_RUN | Unreal owner TO_VERIFY | Verify native launcher and safe workspace first, then launch an authorized scoped smoke test and capture exact result. Engine Build.version is static evidence. |
+| UE-01 | NOT_RUN | Unreal owner TO_VERIFY | Follow the README manual smoke test in a disposable checkout. Engine Build.version, the Intel slice, plugins and map were verified statically. Test the configured Metal SM6 profile on Intel. |
 | DATA-01 | OPEN | World Builder owner TO_VERIFY | Source-license and phase intent review before any real geodata ingestion. |
 
 ## Resolved infrastructure issues
+
+- INIT 00B publication audit. Removed the Android File Server token from the public configuration and disabled the server and its network connection. The original was preserved locally.
 
 - PUB-01. The first push was rejected by GitHub with GH007. The unpublished root was amended with the verified GitHub `noreply` identity and the same source tree. Git and GitHub queries independently verified the published `main`.
 - T16. The failure fixture resolved `python` through the caller's PATH and could run a pyenv shim. Use explicit POSIX exit statuses so the fixture tests rejected and accepted command evidence without depending on a second interpreter lookup.

@@ -1,0 +1,30 @@
+# macOS
+.DS_Store
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Unreal
+**/Binaries/
+**/DerivedDataCache/
+**/Intermediate/
+**/Saved/
+
+# Generated geographic data
+data/cache/
+data/processed/
+
+# Local environments and secrets
+.env
+.env.*
+!.env.example
+
+# Development
+.idea/
+.vscode/
+*.log
+*.tmp

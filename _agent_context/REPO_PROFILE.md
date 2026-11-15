@@ -34,3 +34,7 @@ Existing source, settings and lockfiles, .env, .venv, assets, geodata and Unreal
 # Unknowns
 
 Product owners beyond configuration, geographic data licenses, native test invocation, simulator behavior, release and CI. Use source and operator scope before implementation.
+
+# INIT 00B foundation
+
+`apps/unreal/RoadsideDrive/` and the Python/LFS/environment manifests listed above are now tracked project source. The lockfile uses public PyPI hosts. The Unreal Engine 5.7.4 install contains an Intel editor executable, the engine OpenWorld template and the Modeling Tools editor plugin. The local GeoReferencing and Enhanced Input plugins are integration candidates to validate. No tracked World Builder pipeline or native test suite was discovered. Setup and the manual native smoke test are in [README.md](../README.md).
