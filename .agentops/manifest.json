@@ -1,0 +1,33 @@
+{
+  "schema_version": "UAOS-B1",
+  "project": "Roadside Drive",
+  "repository": "tubajagrande93/Roadside-Drive",
+  "grand_master_path": "GRAND_MASTER.md",
+  "canonical_master": "GRAND_MASTER.md",
+  "agent_entry": "AGENTS.md",
+  "rules_dir": ".agent_rules",
+  "context_dir": "_agent_context",
+  "modules_dir": "_agent_modules",
+  "templates_dir": "_agent_templates",
+  "checkpoint_path": "_agent_state/CURRENT_TASK_CHECKPOINT.md",
+  "local_evidence_dir": "output/agentops",
+  "handoff_mode": "local_pending_or_authorized_separate_branch",
+  "handoff_branch": "agent-output",
+  "main_source_ref": "DETECT_AT_RUNTIME",
+  "last_verified_ref": "refs/heads/main",
+  "last_verified_sha": "UNKNOWN",
+  "operator_acceptance_default": "PENDING",
+  "network_side_effects_by_default": false,
+  "installed_by": "UAOS-B1",
+  "managed_agent_section_version": 1,
+  "source_ignore": ["assets", "data", "reports"],
+  "source_edges": [
+    {
+      "terms": ["checkpoint", "cold-start", "resume", "handoff"],
+      "owner": ["tools/agentops_state.py", "def write_checkpoint("],
+      "caller": ["tools/agentops.py", "write_checkpoint(repo, args)"],
+      "consumer": ["tools/agentops_state.py", "def write_report("],
+      "checks": ["tools/agentops_state.py", "state = repo.read_checkpoint()"]
+    }
+  ]
+}

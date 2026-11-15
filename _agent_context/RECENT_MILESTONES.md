@@ -1,0 +1,8 @@
+# Latest meaningful changes
+
+- 2026-11-15, B0 inventory recorded with an unborn main, empty remote refs and local Unreal/Python configuration. Evidence in REPO_PROFILE.
+- 2026-11-15, UAOS-B1 entry, rule layers, router/brief, checkpoint/queue and harness installed. Verify against the current source and local handoff.
+
+# Historic pointers
+
+See GM-008 and GM-009. No earlier integrated Git milestone was present at B0.
