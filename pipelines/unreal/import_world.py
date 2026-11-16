@@ -112,9 +112,14 @@ def import_mesh(folder, record):
         "collision_trace_flag",
         unreal.CollisionTraceFlag.CTF_USE_COMPLEX_AS_SIMPLE,
     )
-    if not unreal.EditorAssetLibrary.save_loaded_asset(mesh, only_if_is_dirty=False):
-        raise RuntimeError("Unable to save generated mesh")
-    return mesh, bounds
+    material = mesh.get_material(0)
+    if material is None or not material.get_path_name().startswith(area + "/"):
+        raise RuntimeError(
+            f"Missing imported greybox material for {record['stable_id']}"
+        )
+    if not unreal.EditorAssetLibrary.save_directory(area, only_if_is_dirty=False):
+        raise RuntimeError("Unable to save the generated mesh and its material")
+    return mesh, bounds, material.get_path_name()
 
 
 def trace(actor, x, y):
@@ -200,7 +205,7 @@ def run(mode):
         stable_id = item["stable_id"]
         if not re.fullmatch(r"[a-z0-9-]+", stable_id):
             raise RuntimeError("Unsupported synthetic feature ID")
-        mesh, bounds = import_mesh(folder, item)
+        mesh, bounds, material = import_mesh(folder, item)
         actor = actors.spawn_actor_from_object(mesh, unreal.Vector())
         if actor is None:
             raise RuntimeError(f"Could not place generated mesh {stable_id}")
@@ -213,7 +218,12 @@ def run(mode):
         if stable_id == "road-east-west":
             road_actor = actor
         records.append(
-            {"id": stable_id, "mesh": mesh.get_path_name(), "bounds_cm": bounds}
+            {
+                "id": stable_id,
+                "mesh": mesh.get_path_name(),
+                "bounds_cm": bounds,
+                "material": material,
+            }
         )
     if road_actor is None:
         raise RuntimeError("Synthetic package lacked its control road")

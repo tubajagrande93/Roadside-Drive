@@ -17,7 +17,7 @@ The dedicated Gate 01 development ref contains a versioned, deterministic synthe
 
 # Open blockers
 
-Live Banja Luka data requires DATA-01 closed with a reviewed 500–1000 m AOI, source rights and explicit OSM GO. Editor freecam, runtime spectator and interactive Intel performance remain distinct from the native import and trace checks. See the [operator QA](../docs/world-builder/OPERATOR_QA.md).
+Live Banja Luka data requires DATA-01 closed with a reviewed 500–1000 m AOI, source rights and explicit OSM GO. The rendered Intel preview and basic editor forward movement were observed. Full manual control coverage, runtime spectator and quantitative Intel performance remain open. See the [operator QA](../docs/world-builder/OPERATOR_QA.md).
 
 # Current task
 
@@ -25,4 +25,4 @@ RD-G01 World Builder Foundation. Read the [architecture](../docs/world-builder/A
 
 # Next exact action
 
-Open the isolated synthetic pilot level in Unreal Editor and exercise editor-only navigation and object inspection. Confirm the actual pilot corridor and provenance before requesting OSM GO.
+Confirm the exact Banja Luka pilot centerline and buffered polygon before requesting OSM GO. Keep full flycam and runtime spectator QA separate.

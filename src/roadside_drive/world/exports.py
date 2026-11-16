@@ -31,6 +31,11 @@ from .projections import engine_coordinates, projected_crs
 
 MESH_NAME = re.compile(r"meshes/[a-f0-9]{64}\.glb\Z")
 SYNTHETIC_LABEL = "SYNTHETIC — NOT BANJA LUKA"
+GREYBOX_COLOURS = {
+    "road": [57, 63, 70, 255],
+    "building": [174, 177, 182, 255],
+    "ground": [114, 124, 118, 255],
+}
 
 
 def confined(root, value):
@@ -54,7 +59,7 @@ def fresh_generated_path(root, value):
     return path
 
 
-def glb(faces):
+def glb(faces, kind):
     index = {}
     ordered_faces = [
         [
@@ -65,6 +70,14 @@ def glb(faces):
     ]
     mesh = trimesh.Trimesh(vertices=list(index), faces=ordered_faces, process=False)
     check_mesh(mesh)
+    mesh.visual = trimesh.visual.TextureVisuals(
+        material=trimesh.visual.material.PBRMaterial(
+            name=kind,
+            baseColorFactor=GREYBOX_COLOURS[kind],
+            metallicFactor=0.0,
+            roughnessFactor=1.0,
+        )
+    )
     return mesh.export(file_type="glb")
 
 
@@ -134,12 +147,12 @@ def generate_scene(staging, source, original, patches, roads, buildings):
         confidence = feature.confidence if feature is not None else "PLACEHOLDER"
         if fixed and feature.height_m is None:
             confidence = "PLACEHOLDER"
-        model = glb(faces)
+        kind = feature.kind if feature is not None else "ground"
+        model = glb(faces, kind)
         file = f"meshes/{digest(stable_id.encode())}.glb"
         (staging / file).write_bytes(model)
         vertices = np.asarray(faces).reshape(-1, 3)
         bounds = [vertices.min(axis=0).tolist(), vertices.max(axis=0).tolist()]
-        kind = feature.kind if feature is not None else "ground"
         records.append(
             ObjectRecord(
                 stable_id=stable_id,
@@ -302,6 +315,11 @@ def validate_scene(manifest_path):
         mesh = check_mesh(
             trimesh.load(BytesIO(data), file_type="glb", force="mesh", process=False)
         )
+        material = getattr(mesh.visual, "material", None)
+        if material is None or not np.array_equal(
+            material.baseColorFactor, GREYBOX_COLOURS[item.kind]
+        ):
+            raise ValueError("Mesh greybox material differs from the catalog category")
         if len(mesh.faces) != item.face_count:
             raise ValueError("Mesh face count mismatch")
         (x0, y0, z0), (x1, y1, z1) = item.bounds_m
