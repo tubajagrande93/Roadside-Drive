@@ -130,6 +130,50 @@ def trace(actor, x, y):
     )
 
 
+def prepare_preview(actors, road_actor):
+    light_rotation = unreal.Rotator()
+    light_rotation.pitch = -42
+    light_rotation.yaw = 35
+    light = actors.spawn_actor_from_class(
+        unreal.DirectionalLight, unreal.Vector(0, 0, 10000), light_rotation
+    )
+    if light is None:
+        raise RuntimeError("Could not create the synthetic preview light")
+    light.set_actor_label("Synthetic pilot preview light")
+    light_component = light.get_component_by_class(unreal.DirectionalLightComponent)
+    light_component.set_mobility(unreal.ComponentMobility.MOVABLE)
+    light_component.set_intensity(8.0)
+
+    editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+    rotation = unreal.Rotator()
+    rotation.pitch = -38
+    rotation.yaw = 45
+    view = unreal.Vector(-11500, -11500, 12500)
+    editor.set_level_viewport_camera_info(view, rotation)
+    first = editor.get_level_viewport_camera_info()
+    editor.set_level_viewport_camera_info(
+        unreal.Vector(view.x + 100, view.y, view.z), rotation
+    )
+    second = editor.get_level_viewport_camera_info()
+    editor.set_level_viewport_camera_info(view, rotation)
+    actors.set_selected_level_actors([road_actor])
+    matched = [
+        str(tag)
+        for actor in actors.get_selected_level_actors()
+        for tag in actor.get_editor_property("tags")
+    ]
+    return {
+        "directional_light": True,
+        "camera_api_move": "PASS"
+        if first and second and abs(second[0].x - first[0].x - 100) < 1
+        else "NOT_VERIFIED",
+        "selection_api": "PASS"
+        if "rd_id:road-east-west" in matched
+        else "NOT_VERIFIED",
+        "camera_start_cm": [view.x, view.y, view.z],
+    }
+
+
 def run(mode):
     project = editor_context()
     if mode == "probe":
@@ -171,6 +215,9 @@ def run(mode):
         records.append(
             {"id": stable_id, "mesh": mesh.get_path_name(), "bounds_cm": bounds}
         )
+    if road_actor is None:
+        raise RuntimeError("Synthetic package lacked its control road")
+    preview = prepare_preview(actors, road_actor)
     if not level.save_current_level():
         raise RuntimeError("The pilot level could not be saved")
     trace_ok = (
@@ -184,6 +231,7 @@ def run(mode):
         "scene_sha256": scene["content_sha256"],
         "records": records,
         "collision_trace": "PASS" if trace_ok else "FAIL",
+        "preview": preview,
         "editor_freecam": "NOT_EXECUTED",
         "runtime_spectator": "NOT_IMPLEMENTED",
     }
