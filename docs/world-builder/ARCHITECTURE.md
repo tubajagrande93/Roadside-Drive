@@ -14,3 +14,9 @@ The offline pipeline starts with a read-only source snapshot, replays correction
 A patch compares the expected raw feature hash and the previous value to the actual source and active overlay. An unknown feature, stale value, stale source or duplicate ID produces an explicit error. The fixture and prior packages stay intact. Build different revisions in separate generated directories. Matching builds leave an existing sealed output untouched.
 
 Source height stays null when unknown. The visual shell uses an explicit 6 m placeholder. The flat ground has no surveyed elevation. The native importer compares measured mesh boxes to metric catalog bounds in centimeters. A format claim in editor documentation does not establish local runtime behavior. [Unreal Engine 5.7 glTF import](https://dev.epicgames.com/documentation/en-us/unreal-engine/importing-gltf-files-into-unreal-engine?application_version=5.7)
+
+## Pilot runtime
+
+The generated level installs `ARoadsideSpectatorGameMode` as its level-specific override. The pawn has a camera and no collision body. `ARoadsideSpectatorPawn::ApplyFlightInput` is shared by player input and PIE smoke. It samples only designated road and ground feature actors at the proposed XY and enforces a configurable vertical clearance. It can pass through buildings without using them as floors.
+
+`ARoadsideWorldFeatureActor` binds the package catalog to native actor Details. Inspect dimensions and positions in metres and retain the catalog ID, coordinate reference, source type and confidence. Package source and corrections remain authoritative for rebuilds.

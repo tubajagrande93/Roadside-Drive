@@ -23,3 +23,9 @@ On contradictory runtime evidence reopen the QA gate, record a reproducer and id
 ## Preservation exit and honest partial result
 
 Inspect staged names and protected hashes, compare actual outputs, and mark unrun checks NOT_RUN with reasons. A refused push or missing evidence remains an explicit gate.
+
+## Proportionate development QA
+
+Use the smallest checks that establish usability at the changed boundary. For the World Builder and pilot, default to a source import and a synthetic build, plus targeted Unreal/PIE movement and floor smoke when the native path changes. Reserve broad regression for shared architecture, destructive changes, persistence or coordinate changes, observed regressions, release candidates and explicit requests.
+
+Record implementation, verification and operator acceptance independently. A test that was not run has verification NOT_RUN. Use LIMITED for bounded observations, VERIFIED for executed criteria with evidence and FAILED for an observed failure. Reserve PARTIAL implementation for omitted required functionality. UAOS-B1 COMPLETE_VERIFIED still requires the task-owned gates to pass.

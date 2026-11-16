@@ -15,7 +15,7 @@
   "handoff_branch": "agent-output",
   "main_source_ref": "DETECT_AT_RUNTIME",
   "last_verified_ref": "refs/heads/main",
-  "last_verified_sha": "615daa27b6d80a7fb87cdad87aeacc415853b8d3",
+  "last_verified_sha": "31431f98135ccd28553e3cf9f31c3037a8c28c76",
   "operator_acceptance_default": "PENDING",
   "network_side_effects_by_default": false,
   "installed_by": "UAOS-B1",

@@ -13,11 +13,11 @@ B0 provenance 2026-11-15 UTC, unborn main. B1–B8 infrastructure provenance is 
 
 ## Canonical writers
 
-AgentOps checkpoint is written by write_checkpoint. Reports are queued by write_report and history entries are exclusive. Product dataset writers are TO_VERIFY. The locked Python toolchain and Unreal project configuration are the present source boundaries. No tracked World Builder producer or editor importer was found.
+AgentOps checkpoint is written by write_checkpoint. Reports are queued by write_report and history entries are exclusive. The [World Builder ownership map](../docs/world-builder/ARCHITECTURE.md) traces the Python producers, generated package, Unreal importer, native inspection actor and spectator.
 
 ## Readers/consumers
 
-Doctor and report validate checkpoint metadata; AgentOps startup reads manifest and scoped source. Python and Unreal domain consumers beyond their known configurations are TO_VERIFY.
+Doctor and report validate checkpoint metadata; AgentOps startup reads manifest and scoped source. The Unreal importer consumes validated ScenePackages. The pilot map uses the native spectator game mode and typed actors for Details inspection and floor sampling.
 
 ## Test ownership
 
@@ -25,8 +25,8 @@ Contract harness owns bootstrap regressions, with ledger in the templates. There
 
 ## Unverified nodes
 
-Spatial schema, canonical CRS and transformations, world generation, editor runtime and simulation acceptance.
+Real Banja Luka source licensing, acquisition, projected CRS and geography remain Gate 02 work. Operator acceptance of the synthetic pilot remains pending.
 
 ## Gate 01 development source
 
-[World Builder architecture](../docs/world-builder/ARCHITECTURE.md) traces the source, correction, mesh, package and editor boundaries. These are feature-branch candidates. Exact verified branch and test evidence are in the public handoff.
+[World Builder architecture](../docs/world-builder/ARCHITECTURE.md) traces the source, correction, mesh, package and editor boundaries. The public handoff identifies the exact verified source and records the executed tests.

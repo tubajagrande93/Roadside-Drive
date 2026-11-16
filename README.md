@@ -60,4 +60,4 @@ Read the [verified public handoff](https://github.com/tubajagrande93/Roadside-Dr
 
 ## Gate 01 synthetic preview
 
-On a checkout containing the Gate 01 development work, follow the [operator QA](docs/world-builder/OPERATOR_QA.md) to build and verify the local synthetic ScenePackage. [Architecture](docs/world-builder/ARCHITECTURE.md), [sources and licenses](docs/world-builder/SOURCES_AND_LICENSES.md) and [phase gates](docs/world-builder/PHASE_GATES.md) describe its boundaries. The public handoff identifies the current verified development ref.
+Follow the [operator runbook](docs/world-builder/OPERATOR_QA.md) to build the synthetic ScenePackage, open it in Unreal, inspect objects and fly in Play in Editor. [Architecture](docs/world-builder/ARCHITECTURE.md), [sources and licenses](docs/world-builder/SOURCES_AND_LICENSES.md) and [phase gates](docs/world-builder/PHASE_GATES.md) describe its boundaries. The public handoff records the verified source ref. Continue with [Gate 02](docs/world-builder/GATE_02_ENTRY.md) when the real corridor is in scope.

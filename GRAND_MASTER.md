@@ -10,11 +10,11 @@ Latest explicit operator authorization determines scope. Live Git/source establi
 
 ## GM-003 Product purpose and boundaries
 
-Operator intent is a modular real-world driving simulator, initially a precision World Builder for 500–1000 metres of Banja Luka, Bosnia and Herzegovina. Planned work includes OSM ingestion, georeferenced metric editable geometry, collisions and physical surfaces, CS 1.6-style spectator free flight, object inspection and measurement, reversible corrections, provenance/confidence, repeatability and Unreal import. This is roadmap intent. INIT 00B tracks the descriptor, default configurations, and locked geospatial dependencies. Pipeline/runtime implementation is TO_VERIFY.
+Roadside Drive is a modular real-world driving simulator. Gate 01 builds the [synthetic World Builder foundation](docs/world-builder/ARCHITECTURE.md) with a reproducible metric ScenePackage, reversible corrections, Unreal import, runtime spectator and editor inspection. [Gate 02](docs/world-builder/GATE_02_ENTRY.md) targets an approximately 2.2 km Banja Luka pilot after the corridor, source rights and scoped OSM GO are confirmed. Vehicle physics and production releases remain future work.
 
 ## GM-004 Architecture and writers
 
-[Architecture map](_agent_context/ARCHITECTURE_MAP.md) anchors the existing Unreal configuration, Python dependency specification and agent infrastructure. ProjectID and startup map are configuration-owned. No world data schema or canonical feature writer was located in B0.
+[Architecture map](_agent_context/ARCHITECTURE_MAP.md) anchors the existing Unreal configuration, Python dependency specification and agent infrastructure. ProjectID and startup map are configuration-owned. The World Builder pipeline owns spatial contracts and source packages. The generated pilot level sets the runtime game mode locally.
 
 ## GM-005 Protection and non-goals
 
@@ -26,7 +26,7 @@ Preserve the local Unreal project identity and LFS mappings, with anchors in the
 
 ## GM-007 Build, test, run and release
 
-Run `python3 -m unittest discover -s tests -p test_agentops_contract.py -v` and `python3 tools/agentops.py verify`. Recreate the local Python environment and check GIS imports using the [README](README.md#set-up-a-local-checkout). Engine Build.version and project config are static evidence. Headless Unreal automation, app packaging, CI and production releases are open.
+Use the [developer setup](README.md#set-up-a-local-checkout) for Python/GIS and the [pilot runbook](docs/world-builder/OPERATOR_QA.md) for the targeted Unreal smoke. Run `python3 tools/agentops.py verify` for installation consistency and the UAOS contract suite for changes to the infrastructure itself. App packaging, CI and production releases are open.
 
 ## GM-008 Decisions
 
@@ -36,6 +36,7 @@ Run `python3 -m unittest discover -s tests -p test_agentops_contract.py -v` and 
 - 2026-11-16, D004. The operator approved the project foundation for public main in INIT 00B. Normalize the Android File Server settings for publication and preserve the original locally. Gate 01 implementation remains a separate task.
 - 2026-11-16, D005. The operator authorized standing GitHub publication in [.agent_rules/30-evidence-and-publication.md](.agent_rules/30-evidence-and-publication.md), including the isolated public handoff archive. This supersedes D002’s pending authorization for remote handoffs.
 - 2026-11-16, D006. Gate 01 preserves a read-only source snapshot, applies explicit versioned corrections, and derives a disposable ScenePackage. Unreal transforms use one local metric origin and one centimeters-per-meter conversion. Independently test native orientation, scale and collision. Live geographic requests require a scoped operator OSM GO.
+- 2026-11-16, D007. Keep the runtime spectator and inspection in Gate 01. Move live OSM and the approximately 2.2 km corridor to Gate 02. Use the smallest meaningful development smoke test and record verification separately from implementation and operator acceptance.
 
 ## GM-009 Milestones and baseline
 

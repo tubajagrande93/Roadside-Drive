@@ -7,6 +7,7 @@ import json
 import math
 import os
 import re
+import time
 from pathlib import Path
 
 import unreal
@@ -206,7 +207,9 @@ def run(mode):
         if not re.fullmatch(r"[a-z0-9-]+", stable_id):
             raise RuntimeError("Unsupported synthetic feature ID")
         mesh, bounds, material = import_mesh(folder, item)
-        actor = actors.spawn_actor_from_object(mesh, unreal.Vector())
+        actor = actors.spawn_actor_from_class(
+            unreal.RoadsideWorldFeatureActor, unreal.Vector()
+        )
         if actor is None:
             raise RuntimeError(f"Could not place generated mesh {stable_id}")
         actor.set_actor_label(f"{SYNTHETIC} / {stable_id}")
@@ -214,7 +217,20 @@ def run(mode):
             "tags", [f"rd_id:{stable_id}", f"rd_confidence:{item['confidence']}"]
         )
         component = actor.get_component_by_class(unreal.StaticMeshComponent)
+        component.set_static_mesh(mesh)
         component.set_collision_profile_name("BlockAll")
+        low, high = item["bounds_m"]
+        origin = scene["origin"]
+        actor.initialize_catalog(
+            stable_id,
+            item["kind"],
+            unreal.Vector(*low),
+            unreal.Vector(*high),
+            unreal.Vector(origin["east_m"], origin["north_m"], origin["z_m"]),
+            scene["source_crs"],
+            scene["provenance"]["dataset_kind"],
+            item["confidence"],
+        )
         if stable_id == "road-east-west":
             road_actor = actor
         records.append(
@@ -227,7 +243,37 @@ def run(mode):
         )
     if road_actor is None:
         raise RuntimeError("Synthetic package lacked its control road")
+    editor_world = unreal.get_editor_subsystem(
+        unreal.UnrealEditorSubsystem
+    ).get_editor_world()
+    editor_world.get_world_settings().set_editor_property(
+        "default_game_mode", unreal.RoadsideSpectatorGameMode.static_class()
+    )
+    player_start = actors.spawn_actor_from_class(
+        unreal.PlayerStart, unreal.Vector(-3500, 0, 450)
+    )
+    if player_start is None:
+        raise RuntimeError("Could not place the pilot player start")
+    player_start.set_actor_label("Roadside spectator start")
+
     preview = prepare_preview(actors, road_actor)
+    inspector = {
+        "id": road_actor.get_editor_property("stable_id"),
+        "type": road_actor.get_editor_property("feature_type"),
+        "length_m": road_actor.get_editor_property("dimensions_m").x,
+        "source": road_actor.get_editor_property("source_type"),
+        "confidence": road_actor.get_editor_property("confidence"),
+    }
+    if inspector != {
+        "id": "road-east-west",
+        "type": "road",
+        "length_m": 100.0,
+        "source": "SYNTHETIC",
+        "confidence": "VERIFIED",
+    }:
+        raise RuntimeError(
+            f"Inspector did not retain the control road's metadata: {inspector}"
+        )
     if not level.save_current_level():
         raise RuntimeError("The pilot level could not be saved")
     trace_ok = (
@@ -243,7 +289,8 @@ def run(mode):
         "collision_trace": "PASS" if trace_ok else "FAIL",
         "preview": preview,
         "editor_freecam": "NOT_EXECUTED",
-        "runtime_spectator": "NOT_IMPLEMENTED",
+        "runtime_spectator": "NOT_RUN",
+        "object_inspector": inspector,
     }
     evidence["level_file_present"] = (
         project / "Content/RoadsideDrive/Levels/L_RD_WorldPilot.umap"
@@ -251,20 +298,104 @@ def run(mode):
     return evidence
 
 
-if __name__ == "__main__":
-    try:
-        result = run(os.environ.get("RD_G01_MODE", "probe"))
-    except Exception as error:
-        result = {
-            "status": "FAIL",
-            "boundary": type(error).__name__,
-            "error": str(error),
-        }
-        Path(os.environ["RD_G01_NATIVE_EVIDENCE"]).write_text(
-            json.dumps(result), encoding="utf-8"
-        )
-        raise
+def exercise_spectator(pawn, player):
+    """Exercise the same runtime movement method that consumes the live keys."""
+    player.set_control_rotation(unreal.Rotator())
+
+    def put(x, y, z):
+        pawn.set_actor_location(unreal.Vector(x, y, z), False, True)
+
+    def apply(x, y, z, dt=1.0, boost=False):
+        pawn.apply_flight_input(unreal.Vector(x, y, z), dt, boost)
+        return pawn.get_actor_location()
+
+    put(2500, 0, 500)
+    road = apply(0, 0, -1).z
+    put(3500, 2000, 500)
+    ground = apply(0, 0, -1).z
+    put(950, 1500, 250)
+    middle = apply(1, 0, 0, 0.5).x
+    through = apply(1, 0, 0, 0.5, True).x
+    put(1500, 1500, 250)
+    inside = apply(0, 0, -1).z
+    put(3500, 2000, 300)
+    above = apply(0, 0, 1, 0.25).z
+    put(30000, 30000, 500)
+    fallback = apply(0, 0, -1).z
+    checks = {
+        "road_camera_z_cm": road,
+        "ground_camera_z_cm": ground,
+        "building_camera_z_cm": inside,
+        "outside_camera_z_cm": fallback,
+        "inside_building_x_cm": middle,
+        "beyond_building_x_cm": through,
+        "ascended_camera_z_cm": above,
+    }
+    if not (
+        abs(road - 120) < 2
+        and abs(ground - 115) < 2
+        and abs(inside - 115) < 2
+        and abs(fallback - 115) < 2
+        and 1000 < middle < 2500
+        and through > 2500
+        and above > 300
+    ):
+        raise RuntimeError(f"Spectator movement or floor check failed: {checks}")
+    return checks
+
+
+def write_evidence(result):
     Path(os.environ["RD_G01_NATIVE_EVIDENCE"]).write_text(
         json.dumps(result), encoding="utf-8"
     )
     unreal.log("RD_G01: " + json.dumps(result))
+
+
+def start_pie(result):
+    level = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+    editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+    deadline = time.monotonic() + 45
+    unreal.EditorPythonScripting.set_keep_python_script_alive(True)
+    handle = None
+
+    def poll(_delta_seconds):
+        try:
+            world = editor.get_game_world()
+            player = (
+                unreal.GameplayStatics.get_player_controller(world, 0)
+                if world
+                else None
+            )
+            pawn = player.get_controlled_pawn() if player else None
+            if pawn is None and time.monotonic() < deadline:
+                return
+            if not isinstance(pawn, unreal.RoadsideSpectatorPawn):
+                raise TypeError(f"PIE did not possess RoadsideSpectatorPawn: {pawn}")
+            result["spectator_checks"] = exercise_spectator(pawn, player)
+            result["runtime_spectator"] = "PASS"
+        except (RuntimeError, TypeError, AttributeError, ValueError) as error:
+            result["runtime_spectator"] = "FAIL"
+            result["runtime_error"] = str(error)
+        unreal.unregister_slate_post_tick_callback(handle)
+        write_evidence(result)
+        if level.is_in_play_in_editor():
+            level.editor_request_end_play()
+        unreal.EditorPythonScripting.set_keep_python_script_alive(False)
+
+    handle = unreal.register_slate_post_tick_callback(poll)
+    level.editor_request_begin_play()
+
+
+if __name__ == "__main__":
+    mode = os.environ.get("RD_G01_MODE", "probe")
+    try:
+        result = run(mode)
+        if mode == "spectator":
+            start_pie(result)
+        else:
+            write_evidence(result)
+    except Exception as error:
+        write_evidence(
+            {"status": "FAIL", "boundary": type(error).__name__, "error": str(error)}
+        )
+        raise

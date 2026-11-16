@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import platform
 import shutil
 import signal
 import subprocess
@@ -14,13 +15,37 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def run_logged(argv, cwd, env, log_path, timeout):
+    with (
+        log_path.open("wb") as log,
+        subprocess.Popen(
+            argv,
+            cwd=cwd,
+            env=env,
+            stdout=log,
+            stderr=subprocess.STDOUT,
+            start_new_session=True,
+        ) as process,
+    ):
+        try:
+            return process.wait(timeout=timeout), False
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            return process.wait(), True
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--engine", type=Path, required=True)
     parser.add_argument("--scene", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--timeout", type=int, default=150)
-    parser.add_argument("--mode", choices=("probe", "import"), default="probe")
+    parser.add_argument("--timeout", type=int, default=600)
+    parser.add_argument(
+        "--mode", choices=("probe", "import", "spectator"), default="spectator"
+    )
     args = parser.parse_args()
     source = ROOT / "apps/unreal/RoadsideDrive"
     engine = args.engine.resolve(strict=True) / "Engine"
@@ -41,14 +66,15 @@ def main():
         parser.error(
             "require an UnrealEditor-Cmd and a new disposable output directory"
         )
-    if not 1 <= args.timeout <= 300:
-        parser.error("timeout must be between 1 and 300 seconds")
+    if not 1 <= args.timeout <= 900:
+        parser.error("timeout must be between 1 and 900 seconds")
     if output.parent.is_symlink():
         parser.error("output parent must be a real directory")
     output.mkdir(parents=True)
     project = output / "project"
     project.mkdir()
     shutil.copytree(source / "Config", project / "Config")
+    shutil.copytree(source / "Source", project / "Source")
     template = json.loads((source / "RoadsideDrive.uproject").read_bytes())
     for name in ("PythonScriptPlugin", "EditorScriptingUtilities"):
         entries = [item for item in template["Plugins"] if item["Name"] == name]
@@ -68,20 +94,48 @@ def main():
         "RD_G01_DISPOSABLE_PROJECT": str(project),
         "RD_G01_SCENE": str(scene),
         "RD_G01_NATIVE_EVIDENCE": str(evidence),
-        "UE-LocalDataCachePath": str(output / "DDC"),
         "UE-SharedDataCachePath": "None",
     }
+    build = [
+        str(engine / "Build/BatchFiles/Mac/Build.sh"),
+        "RoadsideDriveEditor",
+        "Mac",
+        "Development",
+        f"-Project={descriptor}",
+        f"-architecture={platform.machine()}",
+        "-NoHotReload",
+        "-NoUBA",
+        "-MaxParallelActions=4",
+        f"-Log={output / 'ubt.log'}",
+    ]
+    (output / "build-invocation.json").write_text(json.dumps(build), encoding="utf-8")
+    code, timed_out = run_logged(build, project, env, output / "build.log", 480)
+    if code:
+        summary = {
+            "build_exit": code,
+            "timeout": timed_out,
+            "native": None,
+            "result": "BUILD_FAILED",
+        }
+        (output / "summary.json").write_text(
+            json.dumps(summary, indent=2), encoding="utf-8"
+        )
+        print(json.dumps(summary))
+        return 1
+
     script = Path(__file__).with_name("import_world.py")
     argv = [
         str(executable),
         str(descriptor),
         *(
             [f"-ExecutePythonScript={script}"]
-            if args.mode == "import"
+            if args.mode != "probe"
             else ["-run=pythonscript", f"-script={script}"]
         ),
         "-unattended",
-        "-nullrhi",
+        # UE 5.7 can abort while generating Python wrappers in parallel on Intel.
+        "-ini:Engine:[ConsoleVariables]:Engine.Python.ForceWrapperGenerationOnSingleThread=1",
+        *(["-nullrhi"] if args.mode == "probe" else []),
         "-nosound",
         "-nop4",
         "-NoSplash",
@@ -92,27 +146,7 @@ def main():
         f"-UserDir={output / 'user'}",
     ]
     (output / "invocation.json").write_text(json.dumps(argv), encoding="utf-8")
-    timed_out = False
-    with (
-        (output / "process.log").open("wb") as log,
-        subprocess.Popen(
-            argv,
-            cwd=project,
-            env=env,
-            stdout=log,
-            stderr=subprocess.STDOUT,
-            start_new_session=True,
-        ) as process,
-    ):
-        try:
-            rc = process.wait(timeout=args.timeout)
-        except subprocess.TimeoutExpired:
-            timed_out = True
-            try:
-                os.killpg(process.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-            rc = process.wait()
+    rc, timed_out = run_logged(argv, project, env, output / "process.log", args.timeout)
     observed = json.loads(evidence.read_bytes()) if evidence.is_file() else None
     status = {
         "process_exit": rc,
@@ -125,9 +159,11 @@ def main():
     required = "NATIVE_API_PASS" if args.mode == "probe" else "NATIVE_IMPORT_PASS"
     if rc or not observed or observed["status"] != required:
         return 1
-    if args.mode == "import" and (
+    if args.mode != "probe" and (
         observed["collision_trace"] != "PASS" or not observed["level_file_present"]
     ):
+        return 1
+    if args.mode == "spectator" and observed["runtime_spectator"] != "PASS":
         return 1
     return 0
 
