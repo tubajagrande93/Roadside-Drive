@@ -4,13 +4,17 @@ from __future__ import annotations
 
 import os
 from datetime import UTC, datetime
+from typing import Literal
 
 from pydantic import Field
 from shapely.geometry import LineString, Polygon
 
+from .bounded_overpass import capture_polygon, polygon_queries
 from .contracts import XY, Contract, Digest, canonical, digest
 from .exports import confined
 from .projections import project_wgs84
+
+G02_ANCHORS = ((17.203654, 44.784419), (17.187776, 44.768741))
 
 ENDPOINT = "https://overpass-api.de/api"
 ATTRIBUTION = "© OpenStreetMap contributors — https://www.openstreetmap.org/copyright"
@@ -24,6 +28,7 @@ class Pilot(Contract):
     intended_centerline_length_m: tuple[int, int]
     centerline_wgs84: tuple[XY, ...] | None
     polygon_wgs84: tuple[XY, ...] | None
+    scope: Literal["gate01", "banja-luka-g02"] = "gate01"
 
 
 class Approval(Contract):
@@ -37,10 +42,9 @@ class Approval(Contract):
 
 def proposal(root, config):
     pilot = Pilot.model_validate_json(confined(root, config).read_bytes())
-    if pilot.source_crs != "EPSG:4326" or pilot.intended_centerline_length_m != (
-        500,
-        1000,
-    ):
+    gate02 = pilot.scope == "banja-luka-g02"
+    limits = (2000, 4000) if gate02 else (500, 1000)
+    if pilot.source_crs != "EPSG:4326" or pilot.intended_centerline_length_m != limits:
         raise ValueError("Unexpected pilot source CRS or authorized length envelope")
     pending = pilot.centerline_wgs84 is None or pilot.polygon_wgs84 is None
     region = {
@@ -55,6 +59,9 @@ def proposal(root, config):
     }
     if not pending:
         validate_bounds(pilot)
+        if gate02:
+            region["scope"] = pilot.scope
+            region["overpass_ql"] = polygon_queries(pilot.polygon_wgs84)
     return pilot, {
         **region,
         "title": pilot.title,
@@ -66,9 +73,17 @@ def proposal(root, config):
 
 
 def validate_bounds(pilot):
+    gate02 = pilot.scope == "banja-luka-g02"
+    if gate02 and (
+        pilot.centerline_wgs84 != G02_ANCHORS
+        or pilot.projected_crs_candidate != "EPSG:32633"
+    ):
+        raise ValueError(
+            "Gate 02 requires the authorized Banja Luka anchor identity and projection"
+        )
     if not (
         2 <= len(pilot.centerline_wgs84) <= 64
-        and 4 <= len(pilot.polygon_wgs84) <= 64
+        and 4 <= len(pilot.polygon_wgs84) <= (128 if gate02 else 64)
         and pilot.polygon_wgs84[0] == pilot.polygon_wgs84[-1]
     ):
         raise ValueError("Pilot requires a bounded line and closed polygon")
@@ -81,18 +96,19 @@ def validate_bounds(pilot):
     area = Polygon(
         [project_wgs84(p, pilot.projected_crs_candidate) for p in pilot.polygon_wgs84]
     )
+    min_length, max_length = pilot.intended_centerline_length_m
     if (
         not line.is_simple
-        or not 500 <= line.length <= 1000
+        or not min_length <= line.length <= max_length
         or not area.is_valid
-        or not 0 < area.area <= 500_000
+        or not 0 < area.area <= (4_000_000 if gate02 else 500_000)
         or not area.covers(line)
     ):
-        raise ValueError(
-            "Pilot lies outside the 500–1000 m approved bounded-query envelope"
-        )
+        raise ValueError("Pilot lies outside its approved bounded-query envelope")
     west, south, east, north = area.bounds
-    if max(east - west, north - south) > 1500:
+    if gate02 and not line.buffer(350.01, quad_segs=24).covers(area):
+        raise ValueError("Gate 02 AOI extends beyond the authorized 350 m buffer")
+    if max(east - west, north - south) > (3000 if gate02 else 1500):
         raise ValueError("AOI span exceeds the bounded pilot")
 
 
@@ -129,6 +145,11 @@ def ingest_osm(root, config, approval_path, allow_network):
     pilot, request, approval = approved_query(
         root, config, approval_path, allow_network
     )
+    if (
+        not (root / ".git").exists()
+        or not (root / "apps/unreal/RoadsideDrive/RoadsideDrive.uproject").is_file()
+    ):
+        raise ValueError("Capture must run at the Roadside Drive repository root")
     raw = confined(root, "data/raw/world_builder/snapshots")
     output = raw / request["query_sha256"]
     if output.is_symlink() or output.exists():
@@ -148,11 +169,19 @@ def ingest_osm(root, config, approval_path, allow_network):
     ox.settings.cache_folder = output / "responses"
     ox.settings.requests_timeout = 30
     ox.settings.all_oneway = False
-    polygon = Polygon(pilot.polygon_wgs84)
-    graph = ox.graph.graph_from_polygon(
-        polygon, network_type="drive", simplify=False, retain_all=True
-    )
-    buildings = ox.features.features_from_polygon(polygon, {"building": True})
+    source_dates = {}
+    if pilot.scope == "banja-luka-g02":
+        ox.settings.useful_tags_way = sorted(
+            set(ox.settings.useful_tags_way)
+            | {"width", "surface", "layer", "junction", "access"}
+        )
+        graph, buildings, source_dates = capture_polygon(ox, request, output)
+    else:
+        polygon = Polygon(pilot.polygon_wgs84)
+        graph = ox.graph.graph_from_polygon(
+            polygon, network_type="drive", simplify=False, retain_all=True
+        )
+        buildings = ox.features.features_from_polygon(polygon, {"building": True})
     ox.io.save_graphml(graph, filepath=output / "graph.graphml")
     (output / "buildings.geojson").write_text(
         buildings.reset_index().to_json(), encoding="utf-8"
@@ -167,7 +196,12 @@ def ingest_osm(root, config, approval_path, allow_network):
         "status": "CAPTURED_REQUIRES_QA",
         "fetched_utc": datetime.now(UTC).isoformat(),
         "approved_utc": approval.approved_utc.isoformat(),
-        "counts": {"road_edges": len(graph.edges), "building_features": len(buildings)},
+        "counts": {
+            "road_nodes": len(graph.nodes),
+            "road_edges": len(graph.edges),
+            "building_features": len(buildings),
+        },
+        "osm_source_dates": source_dates,
         "artifacts_sha256": files,
         "derivative_status": "SOURCE_CAPTURE",
     }

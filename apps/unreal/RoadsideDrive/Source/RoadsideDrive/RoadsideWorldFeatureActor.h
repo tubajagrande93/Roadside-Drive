@@ -49,5 +49,32 @@ public:
         Confidence = Classification;
     }
 
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Roadside Inspection")
+    FString SourceElements;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Roadside Inspection")
+    FString SourceRevision;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Roadside Inspection")
+    FString WidthOrHeightBasis;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Roadside Inspection")
+    FString SourceLongitudeLatitude;
+
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Roadside Inspection")
+    FString MaterialClass;
+
+    UFUNCTION(BlueprintCallable, Category = "Roadside Inspection")
+    void InitializeProvenance(const FString& Elements, const FString& Revision,
+                              const FString& Basis, const FString& LonLat,
+                              const FString& Material)
+    {
+        SourceElements = Elements;
+        SourceRevision = Revision;
+        WidthOrHeightBasis = Basis;
+        SourceLongitudeLatitude = LonLat;
+        MaterialClass = Material;
+    }
+
     bool IsSpectatorFloor() const { return FeatureType == TEXT("road") || FeatureType == TEXT("ground"); }
 };

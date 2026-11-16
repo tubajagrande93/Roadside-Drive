@@ -14,7 +14,10 @@ from pyproj.exceptions import ProjError
 from shapely.errors import ShapelyError
 
 from .contracts import canonical, digest
+from .corridor_route import write_route_review
+from .corridor_scene import build_corridor
 from .exports import build_fixture, confined, fresh_generated_path, validate_scene
+from .issue_feedback import report_issue
 from .normalize import normalized_capture
 from .osm_adapter import ingest_osm, proposal
 
@@ -32,6 +35,27 @@ def parser():
         verify.add_argument("--scene", required=True)
         if name == "export":
             verify.add_argument("--output", required=True)
+    review = command.add_parser("review-route")
+    review.add_argument("--capture", required=True)
+    review.add_argument("--output", required=True)
+    corridor = command.add_parser("build-corridor")
+    corridor.add_argument("--capture", required=True)
+    corridor.add_argument("--review", required=True)
+    corridor.add_argument("--candidate-id", required=True)
+    corridor.add_argument("--output", required=True)
+    corridor.add_argument("--patches")
+    use = corridor.add_mutually_exclusive_group(required=True)
+    use.add_argument("--candidate-preview", action="store_true")
+    use.add_argument("--approval")
+    issue = command.add_parser("report-issue")
+    issue.add_argument("--scene", required=True)
+    issue.add_argument("--editor-context", required=True)
+    issue.add_argument("--observed", required=True)
+    issue.add_argument("--expected", required=True)
+    issue.add_argument(
+        "--severity", choices=("minor", "major", "blocking"), required=True
+    )
+    issue.add_argument("--screenshot")
     normal = command.add_parser("normalize-capture")
     normal.add_argument("--capture", required=True)
     normal.add_argument("--output", required=True)
@@ -56,6 +80,19 @@ def run(root, args):
         return proposal(root, args.config)[1]
     if args.command == "ingest-osm":
         return ingest_osm(root, args.config, args.approval, args.allow_network)
+    if args.command == "review-route":
+        report = write_route_review(root, args.capture, args.output)
+        return {key: value for key, value in report.items() if key != "candidates"}
+    if args.command == "report-issue":
+        return report_issue(
+            root,
+            args.scene,
+            args.editor_context,
+            args.observed,
+            args.expected,
+            args.severity,
+            args.screenshot,
+        )
     if args.command == "normalize-capture":
         source = normalized_capture(root, args.capture)
         target = fresh_generated_path(root, args.output)
@@ -79,6 +116,16 @@ def run(root, args):
         }
     if args.command == "build-fixture":
         scene = build_fixture(root, args.config, args.output, args.patches)
+    elif args.command == "build-corridor":
+        scene = build_corridor(
+            root,
+            args.capture,
+            args.review,
+            args.candidate_id,
+            args.output,
+            args.patches,
+            args.approval,
+        )
     else:
         manifest = confined(root, args.scene)
         scene = validate_scene(manifest)

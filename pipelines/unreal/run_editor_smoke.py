@@ -15,6 +15,35 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 
 
+G02_RENDERER_OVERRIDES = {
+    "r.DynamicGlobalIlluminationMethod": "0",
+    "r.ReflectionMethod": "0",
+    "r.RayTracing": "False",
+    "r.GenerateMeshDistanceFields": "False",
+    "r.Nanite.ProjectEnabled": "False",
+    "r.Shadow.Virtual.Enable": "0",
+}
+
+
+def configure_corridor_renderer(ini):
+    """Override costly rendering features only in a generated pilot project."""
+    lines = ini.read_text().splitlines(keepends=True)
+    header = "[/Script/Engine.RendererSettings]"
+    start = next(index for index, row in enumerate(lines) if row.strip() == header) + 1
+    stop = next(
+        (index for index in range(start, len(lines)) if lines[index].startswith("[")),
+        len(lines),
+    )
+    existing = [
+        row
+        for row in lines[start:stop]
+        if row.partition("=")[0] not in G02_RENDERER_OVERRIDES
+    ]
+    overrides = [f"{key}={value}\n" for key, value in G02_RENDERER_OVERRIDES.items()]
+    lines[start:stop] = [*overrides, *existing]
+    ini.write_text("".join(lines), encoding="utf-8")
+
+
 def run_logged(argv, cwd, env, log_path, timeout):
     with (
         log_path.open("wb") as log,
@@ -75,6 +104,8 @@ def main():
     project.mkdir()
     shutil.copytree(source / "Config", project / "Config")
     shutil.copytree(source / "Source", project / "Source")
+    if json.loads(scene.read_bytes())["provenance"]["dataset_kind"] == "OSM":
+        configure_corridor_renderer(project / "Config/DefaultEngine.ini")
     template = json.loads((source / "RoadsideDrive.uproject").read_bytes())
     for name in ("PythonScriptPlugin", "EditorScriptingUtilities"):
         entries = [item for item in template["Plugins"] if item["Name"] == name]

@@ -6,6 +6,7 @@
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 #include "InputCoreTypes.h"
+#include "InputKeyEventArgs.h"
 #include "RoadsideWorldFeatureActor.h"
 
 ARoadsideSpectatorPawn::ARoadsideSpectatorPawn()
@@ -117,4 +118,42 @@ double ARoadsideSpectatorPawn::SampleFloor(const FVector& Proposed)
 ARoadsideSpectatorGameMode::ARoadsideSpectatorGameMode()
 {
     DefaultPawnClass = ARoadsideSpectatorPawn::StaticClass();
+}
+
+ARoadsideCorridorSpectatorPawn::ARoadsideCorridorSpectatorPawn()
+{
+    ClearanceCm = 160.0f;
+}
+
+ARoadsideCorridorGameMode::ARoadsideCorridorGameMode()
+{
+    DefaultPawnClass = ARoadsideCorridorSpectatorPawn::StaticClass();
+}
+
+
+double ARoadsideCorridorSpectatorPawn::GetFlightSpeedCmPerSecond() const
+{
+    return GetFlightSpeed();
+}
+
+bool ARoadsideCorridorSpectatorPawn::SimulatePIEInput(FName KeyName, float Value)
+{
+#if WITH_EDITOR
+    APlayerController* Player = Cast<APlayerController>(GetController());
+    if (!Player || !Player->IsLocalController() || GetWorld()->WorldType != EWorldType::PIE)
+    {
+        return false;
+    }
+    FKey Key(KeyName);
+    if (!Key.IsValid() || !FMath::IsFinite(Value))
+    {
+        return false;
+    }
+    const bool bAxis = Key == EKeys::MouseX || Key == EKeys::MouseY;
+    const EInputEvent Event = bAxis ? IE_Axis : (Value > 0.0f ? IE_Pressed : IE_Released);
+    Player->InputKey(FInputKeyEventArgs::CreateSimulated(Key, Event, Value, bAxis ? 1 : -1));
+    return true;
+#else
+    return false;
+#endif
 }

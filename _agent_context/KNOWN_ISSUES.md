@@ -4,7 +4,8 @@
 | --- | --- | --- | --- |
 | UE-01 | NOT_RUN | Unreal owner TO_VERIFY | Follow the README manual smoke test in a disposable checkout. Engine Build.version, the Intel slice, plugins and map were verified statically. Test the configured Metal SM6 profile on Intel. |
 | G01-INTERACTIVE | LIMITED | Gate 01 Unreal | Metal viewport and native PIE movement and floor checks passed. Full manual input coverage and quantitative Intel profiling are optional and remain unexecuted. |
-| DATA-01 | OPEN | World Builder owner TO_VERIFY | Source-license and phase intent review before any real geodata ingestion. |
+| DATA-01 | LIMITED | World Builder | The approved Gate 02 roads and buildings were captured under ODbL. Redistribution of raw and derived artifacts remains subject to the source register and local-only preview policy. |
+| G02-SURVEY | OPEN | World Builder | Grade is flat and provisional. Widths use lane-count assumptions. Missing heights use greybox shells. A survey, local measurements or an approved DEM would be needed to refine the geometry. |
 
 ## Resolved infrastructure issues
 

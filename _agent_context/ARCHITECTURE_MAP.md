@@ -27,6 +27,9 @@ Contract harness owns bootstrap regressions, with ledger in the templates. There
 
 Real Banja Luka source licensing, acquisition, projected CRS and geography remain Gate 02 work. Operator acceptance of the synthetic pilot remains pending.
 
-## Gate 01 development source
+## Gate 01 and Gate 02 source
 
 [World Builder architecture](../docs/world-builder/ARCHITECTURE.md) traces the source, correction, mesh, package and editor boundaries. The public handoff identifies the exact verified source and records the executed tests.
+
+
+Gate 02 extends the existing OSM adapter with two exact scoped Overpass requests. The route review produces a directed candidate sealed against the graph. The corridor builder binds the approved review and assembles features for the existing ScenePackage and correction writers. The native importer owns both isolated maps and delegates corridor presentation and PIE checks to the corridor editor and spectator verification modules.

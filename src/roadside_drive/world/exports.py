@@ -26,11 +26,13 @@ from .contracts import (
     canonical,
     digest,
 )
-from .geometry import PLACEHOLDER_HEIGHT_M, mesh_features
+from .geometry import PLACEHOLDER_HEIGHT_M, mesh_corridor, mesh_features
 from .projections import engine_coordinates, projected_crs
 
 MESH_NAME = re.compile(r"meshes/[a-f0-9]{64}\.glb\Z")
 SYNTHETIC_LABEL = "SYNTHETIC — NOT BANJA LUKA"
+CORRIDOR_LABEL = "OSM BANJA LUKA — PROVISIONAL GREYBOX"
+CANDIDATE_LABEL = "OSM BANJA LUKA — ROUTE CANDIDATE"
 GREYBOX_COLOURS = {
     "road": [57, 63, 70, 255],
     "building": [174, 177, 182, 255],
@@ -109,14 +111,20 @@ def build_fixture(root, config, output, patches_path=None):
     ):
         raise ValueError("build-fixture accepts only attributed synthetic test data")
     projected_crs(source.projected_crs)
+    return build_scene(root, output, source, original, patches_path)
+
+
+def build_scene(root, output, source, original, patches_path=None, *, corridor=None):
     patch_bytes = confined(root, patches_path).read_bytes() if patches_path else b"[]"
     patches = TypeAdapter(tuple[CorrectionPatch, ...]).validate_json(patch_bytes)
     roads, buildings = apply_corrections(source, patches)
     target = fresh_generated_path(root, output)
     target.parent.mkdir(parents=True, exist_ok=True)
-    staging = Path(tempfile.mkdtemp(prefix=".gate01-", dir=target.parent))
+    staging = Path(tempfile.mkdtemp(prefix=".world-scene-", dir=target.parent))
     try:
-        manifest = generate_scene(staging, source, original, patches, roads, buildings)
+        manifest = generate_scene(
+            staging, source, original, patches, roads, buildings, corridor=corridor
+        )
         validate_scene(staging / "scene_manifest.json")
         if target.exists():
             existing = validate_scene(target / "scene_manifest.json")
@@ -132,12 +140,18 @@ def build_fixture(root, config, output, patches_path=None):
             shutil.rmtree(staging)
 
 
-def generate_scene(staging, source, original, patches, roads, buildings):
+def generate_scene(staging, source, original, patches, roads, buildings, *, corridor):
     (staging / "meshes").mkdir()
     known = {item.stable_id: item for item in (*roads, *buildings)}
     raw = {item.stable_id: item for item in (*source.roads, *source.buildings)}
     records = []
-    for stable_id, faces in mesh_features(roads, buildings, source.origin):
+    meshes = (
+        sorted(mesh_corridor(roads, buildings, source.origin, corridor["floor"]))
+        if corridor
+        else mesh_features(roads, buildings, source.origin)
+    )
+    label = corridor["label"] if corridor else SYNTHETIC_LABEL
+    for stable_id, faces in meshes:
         feature = known.get(stable_id)
         fixed = isinstance(feature, BuildingFeature)
         visual_height = (feature.height_m or PLACEHOLDER_HEIGHT_M) if fixed else None
@@ -162,7 +176,9 @@ def generate_scene(staging, source, original, patches, roads, buildings):
                 sha256=digest(model),
                 source_elements=feature.source_elements
                 if feature is not None
-                else ("synthetic:ground",),
+                else (
+                    ("provisional:flat-ground",) if corridor else ("synthetic:ground",)
+                ),
                 bounds_m=bounds,
                 face_count=len(faces),
                 confidence=confidence,
@@ -198,8 +214,9 @@ def generate_scene(staging, source, original, patches, roads, buildings):
             "road_lengths_m": {
                 f.stable_id: LineString(f.centerline_m).length for f in roads
             },
-            "crossings": 1,
-            "label": SYNTHETIC_LABEL,
+            "crossings": 1 if not corridor else None,
+            "label": label,
+            **({"corridor": corridor["evidence"]} if corridor else {}),
         }
     )
     for filename, data in (
@@ -212,7 +229,7 @@ def generate_scene(staging, source, original, patches, roads, buildings):
         "schema_version": 1,
         "build_tool_version": "0.1",
         "world_id": source.world_id,
-        "label": SYNTHETIC_LABEL,
+        "label": label,
         "provenance": source.provenance.model_dump(mode="json"),
         "source_crs": source.source_crs,
         "projected_crs": source.projected_crs,
@@ -228,8 +245,8 @@ def generate_scene(staging, source, original, patches, roads, buildings):
         "normalized_file_sha256": digest(normalized),
         "catalog_sha256": digest(catalog),
         "validation_sha256": digest(validation),
-        "aoi_geometry_wgs84": None,
-        "aoi_approval_status": "NOT_APPLICABLE",
+        "aoi_geometry_wgs84": corridor["aoi"] if corridor else None,
+        "aoi_approval_status": "APPROVED" if corridor else "NOT_APPLICABLE",
         "import_status": "NOT_EXECUTED",
         "source_feature_counts": {
             "road": len(source.roads),
@@ -258,13 +275,21 @@ def validate_scene(manifest_path):
         != scene.content_sha256
     ):
         raise ValueError("Manifest content hash mismatch")
-    if (
-        scene.label != SYNTHETIC_LABEL
-        or scene.provenance.dataset_kind != "SYNTHETIC"
-        or scene.provenance.forbidden_source
-        or scene.provenance.license_id != "PROJECT_TEST_DATA"
-    ):
-        raise ValueError("Invalid source boundary or synthetic label")
+    synthetic = (
+        scene.label == SYNTHETIC_LABEL
+        and scene.provenance.dataset_kind == "SYNTHETIC"
+        and scene.provenance.license_id == "PROJECT_TEST_DATA"
+    )
+    osm = (
+        scene.label in {CORRIDOR_LABEL, CANDIDATE_LABEL}
+        and scene.provenance.dataset_kind == "OSM"
+        and scene.provenance.license_id == "ODbL-1.0"
+        and bool(scene.provenance.attribution)
+        and scene.aoi_approval_status == "APPROVED"
+        and bool(scene.aoi_geometry_wgs84)
+    )
+    if scene.provenance.forbidden_source or not (synthetic or osm):
+        raise ValueError("Invalid scene source boundary or label")
     projected_crs(scene.projected_crs)
     files = {
         "scene_manifest.json",
@@ -295,11 +320,11 @@ def validate_scene(manifest_path):
     counts = Counter(item.kind for item in scene.objects)
     if (
         dict(counts) != scene.generated_object_counts
-        or counts["road"] != 2
-        or counts["building"] < 3
+        or (synthetic and (counts["road"] != 2 or counts["building"] < 3))
+        or (osm and counts["road"] == 0)
         or counts["ground"] != 1
     ):
-        raise ValueError("Unexpected synthetic object counts")
+        raise ValueError("Unexpected scene object counts")
     catalog = json.loads(confined(parent, "object_catalog.json").read_bytes())
     if catalog != [item.model_dump(mode="json") for item in scene.objects]:
         raise ValueError("Catalog disagrees with the scene manifest")

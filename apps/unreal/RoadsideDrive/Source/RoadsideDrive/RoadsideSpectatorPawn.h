@@ -28,6 +28,7 @@ public:
 
 protected:
     virtual void BeginPlay() override;
+    double GetFlightSpeed() const { return SpeedCmPerSecond; }
 
 private:
     void Look(float MouseX, float MouseY);
@@ -48,4 +49,28 @@ class ROADSIDEDRIVE_API ARoadsideSpectatorGameMode : public AGameModeBase
 
 public:
     ARoadsideSpectatorGameMode();
+};
+
+UCLASS()
+class ROADSIDEDRIVE_API ARoadsideCorridorSpectatorPawn : public ARoadsideSpectatorPawn
+{
+    GENERATED_BODY()
+
+public:
+    ARoadsideCorridorSpectatorPawn();
+
+    UFUNCTION(BlueprintCallable, meta = (DevelopmentOnly), Category = "Spectator|Verification")
+    bool SimulatePIEInput(FName KeyName, float Value);
+
+    UFUNCTION(BlueprintPure, Category = "Spectator")
+    double GetFlightSpeedCmPerSecond() const;
+};
+
+UCLASS()
+class ROADSIDEDRIVE_API ARoadsideCorridorGameMode : public ARoadsideSpectatorGameMode
+{
+    GENERATED_BODY()
+
+public:
+    ARoadsideCorridorGameMode();
 };

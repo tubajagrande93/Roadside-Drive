@@ -1,0 +1,14 @@
+{
+  "lane_width_m": 3.2,
+  "class_width_m": {
+    "motorway": 14.0,
+    "trunk": 12.0,
+    "primary": 12.0,
+    "secondary": 11.0,
+    "tertiary": 9.0,
+    "residential": 7.0,
+    "service": 5.0,
+    "unclassified": 7.0,
+    "default": 8.0
+  }
+}

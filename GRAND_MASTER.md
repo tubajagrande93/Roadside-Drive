@@ -39,6 +39,8 @@ Use the [developer setup](README.md#set-up-a-local-checkout) for Python/GIS and 
 - 2026-11-16, D007. Gate 01 preserves a read-only source snapshot, applies explicit versioned corrections, and derives a disposable ScenePackage. Unreal transforms use one local metric origin and one centimeters-per-meter conversion. Independently test native orientation, scale and collision. Live geographic requests require a scoped operator OSM GO.
 - 2026-11-16, D008. Keep the runtime spectator and inspection in Gate 01. Move live OSM and the approximately 2.2 km corridor to Gate 02. Use the smallest meaningful development smoke test and record verification separately from implementation and operator acceptance.
 
+- 2026-11-16, D009. Use the operator-approved named Banja Luka axis for Gate 02. Bind the exact OSM query and route review to separate local approvals. Retain the original capture, apply corrections through the existing patch writer and publish the reproducible source with attribution. Keep generated and review evidence local unless licensed for distribution.
+
 ## GM-009 Milestones and baseline
 
 B0 snapshot was an unborn main with no indexed files. The first tracked bootstrap commit captures this snapshot. INIT 00B adds the validated Unreal and Python foundation. Subsequent source identity and verification belong in [current state](_agent_context/CURRENT_STATE.md) and local immutable reports.

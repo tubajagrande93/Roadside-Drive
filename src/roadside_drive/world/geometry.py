@@ -107,3 +107,28 @@ def mesh_features(roads, buildings, origin):
     x0, y0, x1, y1 = union_all([occupied, *footprints]).bounds
     meshes.append(("ground", triangles(box(x0 - 10, y0 - 10, x1 + 10, y1 + 10), -0.05)))
     return sorted(meshes)
+
+
+def mesh_corridor(roads, buildings, origin, floor):
+    """Partition road surfaces and keep the highest mapped floor physically separate."""
+    from shapely import difference, set_precision
+
+    occupied = Polygon()
+    for road in roads:
+        line = LineString(local_points(road.centerline_m, origin))
+        if line.length <= 0 or not line.is_simple:
+            raise ValueError(f"Invalid corridor line: {road.stable_id}")
+        surface = set_precision(
+            line.buffer(road.width_m / 2, cap_style="square", join_style="round"), 0.01
+        )
+        visible = difference(surface, occupied, grid_size=0.01)
+        occupied = union_all([occupied, surface], grid_size=0.01)
+        if not visible.is_empty and visible.area > 0:
+            yield road.stable_id, triangles(visible, 0.0)
+    for feature in buildings:
+        polygon = checked_polygon(local_points(feature.footprint_m, origin))
+        yield (
+            feature.stable_id,
+            building_shell(polygon, feature.height_m or PLACEHOLDER_HEIGHT_M),
+        )
+    yield "ground", triangles(floor, -0.12)
