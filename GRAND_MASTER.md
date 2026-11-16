@@ -43,6 +43,8 @@ Use the [developer setup](README.md#set-up-a-local-checkout) for Python/GIS and 
 
 - 2026-11-16, D010. Gate 03 enriches the approved corridor from localized provider captures. Keep the approved road and correction identities and retain source-vintage and attribute-confidence evidence in the separate [Source Expansion Handoff](source_atlas/G03_SOURCE_EXPANSION_HANDOFF.md).
 
+- 2026-11-16, D011. Gate 04A derives a signed, collision-free visual layer for stations 0–200 m. The G03 road, source and correction records remain authoritative for geography and floor behavior. Use the [visual foundation runbook](docs/world-builder/G04A_VISUAL_FOUNDATION.md).
+
 ## GM-009 Milestones and baseline
 
 B0 snapshot was an unborn main with no indexed files. The first tracked bootstrap commit captures this snapshot. INIT 00B adds the validated Unreal and Python foundation. Subsequent source identity and verification belong in [current state](_agent_context/CURRENT_STATE.md) and local immutable reports.

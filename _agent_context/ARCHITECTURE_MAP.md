@@ -33,3 +33,7 @@ Real Banja Luka source licensing, acquisition, projected CRS and geography remai
 
 
 Gate 02 extends the existing OSM adapter with two exact scoped Overpass requests. The route review produces a directed candidate sealed against the graph. The corridor builder binds the approved review and assembles features for the existing ScenePackage and correction writers. The native importer owns both isolated maps and delegates corridor presentation and PIE checks to the corridor editor and spectator verification modules.
+
+## Gate 04A visual layer
+
+The [visual foundation runbook](../docs/world-builder/G04A_VISUAL_FOUNDATION.md) anchors station slicing and overlay export in `src/roadside_drive/world/visual`. The G04A editor bridge consumes the sealed overlay, applies separate material instances and lighting in a new level, and reopens it for native evidence. G03 keeps canonical source IDs, corrections, orientation and collision.

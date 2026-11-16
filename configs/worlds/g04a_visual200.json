@@ -1,0 +1,57 @@
+{
+  "schema_version": "G04A-Visual200-v1",
+  "world": "Banja Luka Roadside Drive",
+  "start_wgs84": {
+    "lat": 44.784419,
+    "lon": 17.203654
+  },
+  "end_reference_wgs84": {
+    "lat": 44.768741,
+    "lon": 17.187776
+  },
+  "approved_route": "Gate 02 accepted directed centerline; do not replace with point-to-point chord",
+  "chainage_start_m": 0.0,
+  "chainage_end_m": 200.0,
+  "chainage_basis": "route_distance_m from accepted START",
+  "station_window_half_width_m": 24.0,
+  "corridor_length_m_reference": 2145.684,
+  "projected_crs": "EPSG:32633",
+  "local_frame": "ENU metres",
+  "unreal_frame": "X east, Y south, Z up; 100 cm/m",
+  "overlay": {
+    "z_bias_cm": 0.4,
+    "visual_only": true,
+    "collision": "NoCollision",
+    "source_geometry_immutable": true,
+    "new_namespace": "/Game/RoadsideDrive/Generated/G04A"
+  },
+  "provisional_geometry": {
+    "sidewalk_width_m": 1.6,
+    "curb_height_m": 0.12,
+    "curb_width_m": 0.16,
+    "road_width_source_policy": "per-source; never override real width",
+    "confidence": "ESTIMATED_NOT_SURVEYED",
+    "sidewalk_overlap_policy": "difference from roads, building footprints, excluded areas"
+  },
+  "texture_uv": {
+    "projection": "WORLD_XY_IN_UE_CM",
+    "meters_per_tile_asphalt": 4.0,
+    "meters_per_tile_sidewalk": 2.0,
+    "meters_per_tile_curb": 1.0
+  },
+  "lighting": {
+    "target": "clear summer midday",
+    "sky": "physically_based_blue",
+    "clouds": "few_small_white",
+    "directional_sun": "single",
+    "skylight": "single",
+    "high_cost_effects": "do not enable solely for this task"
+  },
+  "non_goals": [
+    "building facades",
+    "traffic",
+    "vehicles",
+    "lane paint not supported by source",
+    "city-wide dressing"
+  ]
+}

@@ -2,7 +2,7 @@ CONTEXT_SCHEMA: UAOS-B1
 VERIFIED_SOURCE_REF: refs/heads/main
 VERIFIED_SOURCE_SHA: ee674878624f69322dd983dc122bd87c49b9eecd
 VERIFIED_UTC: 2026-11-16T01:27:23Z
-CURRENT_TASK_ID: RD-G03-MIRROR-FIX
+CURRENT_TASK_ID: RD-G04A-200M-VISUAL-FOUNDATION
 CURRENT_TASK_STATUS: COMPLETE
 LATEST_HANDOFF: https://github.com/tubajagrande93/Roadside-Drive/blob/agent-output/AgentOutput/LATEST.md
 IMPLEMENTATION: IMPLEMENTED
@@ -27,10 +27,14 @@ Gate 03 is isolated on the development branch. It preserves the approved geograp
 
 The operator reopened the G03 orientation gate. The GLB exchange now transforms geographic north to negative Unreal Y. Use the [correction runbook](../docs/world-builder/G03_ORIENTATION_FIX.md) and immutable handoff for the native comparison.
 
+# Gate 04A visual foundation
+
+The first 200 m of the directed signed G03 corridor has a separate asphalt, sidewalk, curb and summer lighting overlay. Light and render-only meshes live in the G04A level. See the [local rebuild and reopen recipe](../docs/world-builder/G04A_VISUAL_FOUNDATION.md) and [evidence](../docs/world-builder/G04A_EVIDENCE.md). No G03 coordinate or collision writer was changed.
+
 # Open blockers
 
-Operator acceptance of the corrected START view is pending. Main integration remains deferred while separate dependency work is in progress.
+Operator acceptance of the G04A street-level view is pending. Main integration remains deferred while separate dependency work is in progress.
 
 # Next exact action
 
-Recheck START to END in the corrected gate03-native-oriented Unreal project. Confirm Park Mladen Stojanović on the left before continuing refinement.
+Open the generated G04A Unreal project and play L_RD_G04A_Visual200 from Default Player Start. Inspect the pavement and curbs near 100 m, look up at the sky and verify the original G03 greybox road beyond 200 m.

@@ -6,6 +6,7 @@
 | G01-INTERACTIVE | LIMITED | Gate 01 Unreal | Metal viewport and native PIE movement and floor checks passed. Full manual input coverage and quantitative Intel profiling are optional and remain unexecuted. |
 | DATA-01 | LIMITED | World Builder | The approved Gate 02 roads and buildings were captured under ODbL. Redistribution of raw and derived artifacts remains subject to the source register and local-only preview policy. |
 | G02-SURVEY | OPEN | World Builder | Grade is flat and provisional. Widths use lane-count assumptions. Missing heights use greybox shells. A survey, local measurements or an approved DEM would be needed to refine the geometry. |
+| G04A-STREET-SURVEY | OPEN | Visual foundation | The display widths, curb heights and local pavement patterns are provisional. Mapped OSM lines establish some pedestrian positions. Use street measurements to confirm actual widths and crossings. |
 
 ## Resolved infrastructure issues
 
