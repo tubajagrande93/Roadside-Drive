@@ -4,7 +4,8 @@ from math import isfinite
 
 from pyproj import CRS, Transformer
 
-CM_PER_METRE = 100
+from .orientation import CM_PER_METRE, local_to_ue_cm
+
 MAX_PILOT_OFFSET_M = 10_000
 
 
@@ -34,7 +35,7 @@ def meters_to_unreal(point, origin):
     local = (point[0] - origin.east_m, point[1] - origin.north_m, point[2] - origin.z_m)
     if any(not isfinite(axis) or abs(axis) > MAX_PILOT_OFFSET_M for axis in local):
         raise ValueError("Point outside finite local pilot envelope")
-    return tuple(axis * CM_PER_METRE for axis in local)
+    return local_to_ue_cm(local)
 
 
 def unreal_to_meters(point, origin):
@@ -45,11 +46,6 @@ def unreal_to_meters(point, origin):
         raise ValueError("Unreal transform outside local pilot envelope")
     return (
         point[0] / CM_PER_METRE + origin.east_m,
-        point[1] / CM_PER_METRE + origin.north_m,
+        origin.north_m - point[1] / CM_PER_METRE,
         point[2] / CM_PER_METRE + origin.z_m,
     )
-
-
-def engine_coordinates(local_m):
-    x, y, z = local_m
-    return x, z, y

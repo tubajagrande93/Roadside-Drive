@@ -54,7 +54,7 @@ def test_projection_metres_axis_and_negative_controls():
     origin = Origin(east_m=point[0], north_m=point[1], z_m=0)
     arbitrary = (point[0] + 100, point[1] + 1, 3.0)
     engine = meters_to_unreal(arbitrary, origin)
-    assert engine == (10000, 100, 300)
+    assert engine == (10000, -100, 300)
     assert unreal_to_meters(engine, origin) == pytest.approx(arbitrary, abs=0.02)
     inverse = Transformer.from_crs(32633, 4326, always_xy=True)
     assert inverse.transform(*point) == pytest.approx((17.19, 44.77), abs=1e-9)

@@ -1,5 +1,7 @@
 # Gate 03 evidence
 
+This report records the original harvest before the [geographic handedness correction](G03_ORIENTATION_FIX.md).
+
 - Confirmed road: 2,145.684 m. The approved local metric route matched every vertex to the Gate 02 scene. Road and floor GLB hashes stayed unchanged. All 183 original IDs survived. A replay with the earlier width patch retained all 183 base mesh hashes and the patch-set fingerprint.
 - Final ScenePackage SHA-256: `4eaa05f355043fb78083f536a2bc935823eda963b65f62b662bbbf994cdb89a6`. It contains 633 features, including 512 buildings, 25 park groups and 22 groups each of paths, vegetation and street details. The package retains the Gate 02 floor and separate wider context ground.
 - Twelve bounded OSM responses are archived. The southern building tile came from an older Kumi mirror after two HTTP 502 responses. The Overture release and Commons photo licenses and hashes are documented in the [Source Expansion Handoff](../../source_atlas/G03_SOURCE_EXPANSION_HANDOFF.md).

@@ -146,7 +146,9 @@ class SceneManifest(Contract):
     origin: Origin
     elevation_status: Literal["FLAT_PROVISIONAL_Z0"]
     unreal_units_per_meter: Literal[100]
-    exchange_coordinates: Literal["glTF metres: X east, Y up, Z north"]
+    exchange_coordinates: Literal[
+        "glTF metres: X east, Y up, Z north", "glTF metres: X east, Y up, Z south"
+    ]
     source_sha256: Digest
     normalized_sha256: Digest
     patch_set_sha256: Digest

@@ -13,8 +13,16 @@ from pathlib import Path
 import unreal
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 import corridor_editor
 from verify_spectator import exercise_spectator, start_pie
+
+from roadside_drive.world.orientation import (
+    GEOGRAPHIC_EXCHANGE,
+    LEGACY_EXCHANGE,
+    local_to_ue_cm,
+    ue_bounds_cm,
+)
 
 LEVEL = "/Game/RoadsideDrive/Levels/L_RD_WorldPilot"
 GENERATED = "/Game/RoadsideDrive/Generated/G01"
@@ -74,6 +82,11 @@ def read_scene():
     )
     if not (synthetic or osm):
         raise RuntimeError("The ScenePackage source and expected label disagree")
+    expected_exchange = GEOGRAPHIC_EXCHANGE if osm else LEGACY_EXCHANGE
+    if scene["exchange_coordinates"] != expected_exchange:
+        raise RuntimeError(
+            "Rebuild the geographic package for the X east/Y south Unreal frame"
+        )
     files = {}
     for name, seal in (
         ("validation", "validation_sha256"),
@@ -106,10 +119,10 @@ def read_scene():
     return manifest.parent, scene, files
 
 
-def measured_bounds(mesh, record):
+def measured_bounds(mesh, record, exchange):
     box = mesh.get_bounding_box()
     measured = [[p.x, p.y, p.z] for p in (box.min, box.max)]
-    expected = [[x * 100 for x in row] for row in record["bounds_m"]]
+    expected = ue_bounds_cm(record["bounds_m"], exchange)
     if any(
         not math.isfinite(value) or abs(value - target) > 2.0
         for row, expected_row in zip(measured, expected, strict=True)
@@ -121,7 +134,7 @@ def measured_bounds(mesh, record):
     return measured
 
 
-def import_mesh(folder, record, generated):
+def import_mesh(folder, record, generated, exchange):
     task = unreal.AssetImportTask()
     area = generated + "/" + re.sub(r"[:-]", "_", record["stable_id"])
     for name, value in {
@@ -141,7 +154,7 @@ def import_mesh(folder, record, generated):
             f"GLB import did not create one owned mesh for {record['stable_id']}"
         )
     mesh = meshes[0]
-    bounds = measured_bounds(mesh, record)
+    bounds = measured_bounds(mesh, record, exchange)
     body = mesh.get_editor_property("body_setup")
     if body is None:
         raise RuntimeError("Static mesh did not provide collision BodySetup")
@@ -260,18 +273,22 @@ def run(mode):
     if not level or not actors or not level.new_level(level_path):
         raise RuntimeError("Could not create isolated pilot level")
     records = []
+    imported = {}
     road_actor = None
     building_actor = None
     for item in scene["objects"]:
         stable_id = item["stable_id"]
         if not re.fullmatch(r"[a-z0-9][a-z0-9:-]{0,79}", stable_id):
             raise RuntimeError("Unsupported feature ID")
-        mesh, bounds, material = import_mesh(folder, item, generated)
+        mesh, bounds, material = import_mesh(
+            folder, item, generated, scene["exchange_coordinates"]
+        )
         actor = actors.spawn_actor_from_class(
             unreal.RoadsideWorldFeatureActor, unreal.Vector()
         )
         if actor is None:
             raise RuntimeError(f"Could not place generated mesh {stable_id}")
+        imported[stable_id] = actor
         display = harvest["labels"].get(stable_id, stable_id) if harvest else stable_id
         actor.set_actor_label(f"{scene['label']} / {display}")
         actor.set_editor_property(
@@ -391,11 +408,22 @@ def run(mode):
             }
         )
         actors.set_selected_level_actors([road_actor])
+    proof = os.environ.get("RD_ORIENTATION_CONTROLS")
+    if proof and route:
+        from verify_orientation import audit_landmarks
+
+        preview["geographic_orientation"] = audit_landmarks(
+            json.loads(Path(proof).read_bytes()),
+            route,
+            imported,
+            scene["content_sha256"],
+        )
     if not level.save_current_level():
         raise RuntimeError("The pilot level could not be saved")
     if route:
         middle = route["checkpoints_local_m"][1]
-        trace_ok = trace(road_actor, middle[0] * 100, middle[1] * 100) is not None
+        x, y, _ = local_to_ue_cm((*middle, 0))
+        trace_ok = trace(road_actor, x, y) is not None
         trace_ok = trace_ok and trace(road_actor, 1_000_000, 1_000_000) is None
     else:
         trace_ok = (

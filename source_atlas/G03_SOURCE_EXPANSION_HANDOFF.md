@@ -7,7 +7,9 @@ Published source continuity for the accepted Banja Luka corridor. Successful ent
 - Approved Gate 02 route: **2,145.684 m**, reviewed from the northern checkpoint toward Boska. The rendering and inventory use the Gate 02 EPSG:32633 origin and east/north frame.
 - Source graph SHA-256: `69a8222ee92a48f99b1333688245bb1cb87e2e9d307c34e8cf2d6f9c1f939e8e`.
 - OSM query SHA-256: `b0156d55445dbbe0e9131919b95333bb18d268c4a04180b9a8c7851d444561e9`. Four south-to-north tiles clipped to the approved 225 m route buffer. Three semantic groups per tile.
-- G03 ScenePackage SHA-256: `4eaa05f355043fb78083f536a2bc935823eda963b65f62b662bbbf994cdb89a6`.
+- Historical pre-orientation G03 ScenePackage SHA-256: `4eaa05f355043fb78083f536a2bc935823eda963b65f62b662bbbf994cdb89a6`.
+
+The provider captures and OSM query are unchanged after the handedness fix. See the [orientation correction](../docs/world-builder/G03_ORIENTATION_FIX.md) for the refreshed native build.
 
 ## OpenStreetMap
 

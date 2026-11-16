@@ -14,8 +14,16 @@ from shapely import normalize
 from shapely.geometry import Polygon
 
 from ..contracts import ObjectRecord, SceneManifest, canonical, digest
-from ..exports import G03_LABEL, confined, fresh_generated_path, glb, validate_scene
+from ..exports import (
+    G03_LABEL,
+    confined,
+    fresh_generated_path,
+    glb,
+    reframe_legacy_glb,
+    validate_scene,
+)
 from ..normalize import stable_id
+from ..orientation import GEOGRAPHIC_EXCHANGE, LEGACY_EXCHANGE
 from .features import baseline_footprints, normalize_harvest, numeric_height
 from .fusion import baseline_osm, inventory, station
 from .massing import (
@@ -57,7 +65,7 @@ def make_record(
     confidence="PLACEHOLDER",
     height=None,
 ):
-    mesh = glb(faces, kind)
+    mesh = glb(faces, kind, GEOGRAPHIC_EXCHANGE)
     relative = f"meshes/{digest(identifier.encode())}.glb"
     (folder / relative).write_bytes(mesh)
     verts = np.asarray(faces).reshape(-1, 3)
@@ -103,7 +111,16 @@ def enrich(root, scope, base_path, osm_path, overture_path, output):
         (package / "meshes").mkdir()
         objects = {record.stable_id: record for record in base.objects}
         for record in base.objects:
-            shutil.copyfile(previous.parent / record.file, package / record.file)
+            original = previous.parent / record.file
+            output_file = package / record.file
+            if base.exchange_coordinates == LEGACY_EXCHANGE:
+                reframed = reframe_legacy_glb(original.read_bytes())
+                output_file.write_bytes(reframed)
+                objects[record.stable_id] = record.model_copy(
+                    update={"sha256": digest(reframed)}
+                )
+            else:
+                shutil.copyfile(original, output_file)
         protected = base.patch_set_sha256 != digest(canonical([]))
         displayed = set()
         existing = set(objects)
@@ -335,6 +352,7 @@ def write_package(package, base, evidence, normal, objects, summary):
     body = base.model_dump(mode="json", exclude={"content_sha256"})
     body.update(
         label=G03_LABEL,
+        exchange_coordinates=GEOGRAPHIC_EXCHANGE,
         validation_sha256=digest(artifacts["validation"]),
         normalized_sha256=digest(artifacts["normalized"]),
         normalized_file_sha256=digest(artifacts["normalized"]),

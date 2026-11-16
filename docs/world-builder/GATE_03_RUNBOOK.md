@@ -1,6 +1,6 @@
 # Gate 03 environment harvest
 
-Gate 03 extends the operator-approved Gate 02 road by layering building evidence, park geometry and roadside features onto the existing ScenePackage. The original Gate 02 centerline, source mesh files, corrections, level and Unreal project remain in place. The enriched package retains the 28 road mesh hashes, the provisional floor and all Gate 02 stable object IDs. Where any Gate 02 correction overlay is present, the enrichment keeps the existing building meshes as well.
+Gate 03 extends the operator-approved Gate 02 road by layering building evidence, park geometry and roadside features onto the existing ScenePackage. The original Gate 02 centerline, source mesh files, corrections, level and Unreal project remain in place. The enriched package retains the geometry of the 28 road meshes and provisional floor and all Gate 02 stable object IDs. The signed exchange changes GLB hashes when reframing a legacy base. Where any Gate 02 correction overlay is present, the enrichment preserves the corrected building shapes as well.
 
 ## Repeat the authorized harvest
 
@@ -27,10 +27,10 @@ Set `OSM_RESULT` and `OVERTURE_RESULT` to the verified result files. Replay the 
 
 ```sh
 harvest build --base "$BASE" --osm "$OSM_RESULT" --overture "$OVERTURE_RESULT" \
-  --output data/processed/world_builder/gate03-final
+  --output data/processed/world_builder/gate03-oriented
 .venv/bin/python pipelines/unreal/run_editor_smoke.py --engine "$ROADSIDE_UNREAL_ROOT" \
-  --scene data/processed/world_builder/gate03-final/package/scene_manifest.json \
-  --output data/processed/world_builder/gate03-native-final --mode spectator --timeout 900
+  --scene data/processed/world_builder/gate03-oriented/package/scene_manifest.json \
+  --output data/processed/world_builder/gate03-native-oriented --mode spectator --timeout 900
 ```
 
 The Unreal runner creates an isolated project. For an isolated source worktree, use `--artifact-root` to place the generated project under the live checkout’s ignored data tree. The map uses `/Game/RoadsideDrive/Levels/L_RD_G03_Corridor` and owns `/Game/RoadsideDrive/Generated/G03`. The G02 GameMode and floor constraints are reused. Added park, path, context and street meshes do not block the spectator.
@@ -44,3 +44,5 @@ The merged candidate table ranks heights by surviving evidence. Tagged values an
 See the [separate Source Expansion Handoff](../../source_atlas/G03_SOURCE_EXPANSION_HANDOFF.md) for the exact successful queries, hashes, releases, licenses and unavailable source paths. The Commons photographs are local only. The protected kit, official-provider access details, third-party materials and generated Unreal files stay outside Git.
 
 The common Unreal importer remains the package integrity and asset writer after the RD-ARCH-001 soft review. Corridor and landmark presentation, spectator tests, and reopened-scene evidence live in separate helpers.
+
+Use the [geographic handedness verification](G03_ORIENTATION_FIX.md) when regenerating after the orientation correction. The old native release predates the correction.

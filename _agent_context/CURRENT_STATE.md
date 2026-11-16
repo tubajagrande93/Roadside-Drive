@@ -2,7 +2,7 @@ CONTEXT_SCHEMA: UAOS-B1
 VERIFIED_SOURCE_REF: refs/heads/main
 VERIFIED_SOURCE_SHA: ee674878624f69322dd983dc122bd87c49b9eecd
 VERIFIED_UTC: 2026-11-16T01:27:23Z
-CURRENT_TASK_ID: RD-G03-CORRIDOR-RECONSTRUCTION-HARVEST
+CURRENT_TASK_ID: RD-G03-MIRROR-FIX
 CURRENT_TASK_STATUS: COMPLETE
 LATEST_HANDOFF: https://github.com/tubajagrande93/Roadside-Drive/blob/agent-output/AgentOutput/LATEST.md
 IMPLEMENTATION: IMPLEMENTED
@@ -21,8 +21,16 @@ The authorized 350 m buffer was queried for OSM roads and building footprints. T
 
 # Gate 03 environment harvest
 
-Gate 03 is isolated on the development branch. It preserves the approved road frame, road/floor mesh hashes and Gate 02 object IDs. Bounded OSM, Overture and Commons data power the enriched Banja Luka map. The source-specific limits, hashes and reproducible queries are in the [Source Expansion Handoff](../source_atlas/G03_SOURCE_EXPANSION_HANDOFF.md). Gate 02 operator preview remains deferred by the operator. Gate 03 visual operator acceptance is pending.
+Gate 03 is isolated on the development branch. It preserves the approved geographic road frame and Gate 02 object IDs. The handedness correction re-encodes the generated road and floor meshes, changing their GLB digests. Bounded OSM, Overture and Commons data power the enriched Banja Luka map. The source-specific limits, hashes and reproducible queries are in the [Source Expansion Handoff](../source_atlas/G03_SOURCE_EXPANSION_HANDOFF.md). Gate 02 operator preview remains deferred by the operator. Gate 03 visual operator acceptance is pending.
+
+# Geographic orientation correction
+
+The operator reopened the G03 orientation gate. The GLB exchange now transforms geographic north to negative Unreal Y. Use the [correction runbook](../docs/world-builder/G03_ORIENTATION_FIX.md) and immutable handoff for the native comparison.
+
+# Open blockers
+
+Operator acceptance of the corrected START view is pending. Main integration remains deferred while separate dependency work is in progress.
 
 # Next exact action
 
-Open L_RD_G03_Corridor in the saved isolated project and review the Park Mladen Stojanović and Boska viewpoints before choosing the first measured facade or roof correction.
+Recheck START to END in the corrected gate03-native-oriented Unreal project. Confirm Park Mladen Stojanović on the left before continuing refinement.

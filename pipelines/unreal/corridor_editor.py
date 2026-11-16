@@ -6,6 +6,8 @@ import math
 
 import unreal
 
+from roadside_drive.world.orientation import local_to_ue_cm, start_yaw_deg
+
 LEVEL = "/Game/RoadsideDrive/Levels/L_RD_G02_Corridor"
 GENERATED = "/Game/RoadsideDrive/Generated/G02"
 CANDIDATE = "OSM BANJA LUKA — ROUTE CANDIDATE"
@@ -20,10 +22,10 @@ def preview(actors, route, label):
     controls = route["checkpoints_local_m"]
     rotation = unreal.Rotator()
     rotation.pitch = -60
-    rotation.yaw = -130
+    rotation.yaw = 135
     for name, point in zip(("START", "MID", "END"), controls, strict=True):
-        x, y = (axis * 100 for axis in point)
-        viewpoint = unreal.Vector(x + 4500, y + 4500, 10500)
+        x, y, _ = local_to_ue_cm((*point, 0))
+        viewpoint = unreal.Vector(x + 4500, y - 4500, 10500)
         camera = actors.spawn_actor_from_class(unreal.CameraActor, viewpoint, rotation)
         if camera is None:
             raise RuntimeError(f"Could not place {name} camera marker")
@@ -31,9 +33,11 @@ def preview(actors, route, label):
         if name == "START":
             editor.set_level_viewport_camera_info(viewpoint, rotation)
 
-    x, y = (axis * 100 for axis in controls[0])
+    x, y, _ = local_to_ue_cm((*controls[0], 0))
     start = actors.spawn_actor_from_class(
-        unreal.PlayerStart, unreal.Vector(x, y, 500), unreal.Rotator(yaw=-130)
+        unreal.PlayerStart,
+        unreal.Vector(x, y, 500),
+        unreal.Rotator(yaw=start_yaw_deg(route["route_local_m"])),
     )
     if start is None:
         raise RuntimeError("Could not place corridor player start")
@@ -50,7 +54,7 @@ def preview(actors, route, label):
     component.set_intensity(3.0)
 
     caption = actors.spawn_actor_from_class(
-        unreal.TextRenderActor, unreal.Vector(x - 1400, y + 600, 420)
+        unreal.TextRenderActor, unreal.Vector(x - 1400, y - 600, 420)
     )
     caption.set_actor_label("RD G02 scope and OSM attribution")
     text = caption.get_component_by_class(unreal.TextRenderComponent)
@@ -61,7 +65,7 @@ def preview(actors, route, label):
     text.set_world_size(55)
 
     ruler = actors.spawn_actor_from_class(
-        unreal.StaticMeshActor, unreal.Vector(x + 6700, y + 550, 1)
+        unreal.StaticMeshActor, unreal.Vector(x + 6700, y - 550, 1)
     )
     cube = unreal.EditorAssetLibrary.load_asset("/Engine/BasicShapes/Cube")
     mesh = ruler.get_component_by_class(unreal.StaticMeshComponent)
@@ -78,6 +82,26 @@ def preview(actors, route, label):
 def exercise_corridor(pawn, player, route, building_point):
     if not isinstance(pawn, unreal.RoadsideCorridorSpectatorPawn):
         raise TypeError("G02 did not possess its 160 cm clearance pawn")
+    trail_enu = route["route_local_m"]
+    yaw = math.radians(player.get_control_rotation().yaw)
+    expected_yaw = math.radians(start_yaw_deg(trail_enu))
+    spawn_dot = math.cos(yaw - expected_yaw)
+    start = pawn.get_actor_location()
+    start_x, start_y, _ = local_to_ue_cm((*trail_enu[0], 0))
+    spawn_distance = math.hypot(start.x - start_x, start.y - start_y)
+    if spawn_dot < 0.99 or spawn_distance > 3:
+        raise RuntimeError(
+            f"PIE spawn is not at START facing END: {spawn_distance=}, {spawn_dot=}"
+        )
+    pawn.apply_flight_input(unreal.Vector(1, 0, 0), 0.25, False)
+    advanced = pawn.get_actor_location()
+    spawn_progress = (advanced.x - start.x) * math.cos(expected_yaw) + (
+        advanced.y - start.y
+    ) * math.sin(expected_yaw)
+    if spawn_progress < 200:
+        raise RuntimeError(
+            f"Forward at START did not travel toward END: {spawn_progress:.2f} cm"
+        )
     player.set_control_rotation(unreal.Rotator())
 
     def point(xy, height):
@@ -90,7 +114,8 @@ def exercise_corridor(pawn, player, route, building_point):
         pawn.apply_flight_input(unreal.Vector(dx, dy, dz), dt, False)
         return pawn.get_actor_location()
 
-    trail = route["route_local_m"]
+    trail = [(east, -north) for east, north in trail_enu]
+    building_point = (building_point[0], -building_point[1])
     relocate(trail[0], 500)
     sample = []
     for x, y in trail[1:]:
@@ -114,6 +139,9 @@ def exercise_corridor(pawn, player, route, building_point):
     fallback = move(0, 0, -1).z
 
     checks = {
+        "spawn_heading_dot": spawn_dot,
+        "spawn_distance_cm": spawn_distance,
+        "spawn_forward_towards_end_cm": spawn_progress,
         "ordered_route_floor_samples": len(sample),
         "route_floor_range_cm": [min(sample), max(sample)],
         "destination_error_cm": endpoint_error,
@@ -240,10 +268,10 @@ def harvest_viewpoints(actors, harvest):
             for fragment in ("stojan", "boska", "боска", "стојан")
         ):
             continue
-        x, y = (axis * 100 for axis in point)
-        rotation = unreal.Rotator(pitch=-65, yaw=-135)
+        x, y, _ = local_to_ue_cm((*point, 0))
+        rotation = unreal.Rotator(pitch=-65, yaw=135)
         view = actors.spawn_actor_from_class(
-            unreal.CameraActor, unreal.Vector(x + 5500, y + 5500, 12000), rotation
+            unreal.CameraActor, unreal.Vector(x + 5500, y - 5500, 12000), rotation
         )
         if view is None:
             raise RuntimeError(f"Unable to place viewpoint for {name}")

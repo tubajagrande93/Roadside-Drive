@@ -27,7 +27,13 @@ from .contracts import (
     digest,
 )
 from .geometry import PLACEHOLDER_HEIGHT_M, mesh_corridor, mesh_features
-from .projections import engine_coordinates, projected_crs
+from .orientation import (
+    GEOGRAPHIC_EXCHANGE,
+    LEGACY_EXCHANGE,
+    gltf_bounds_m,
+    local_to_gltf,
+)
+from .projections import projected_crs
 
 MESH_NAME = re.compile(r"meshes/[a-f0-9]{64}\.glb\Z")
 SYNTHETIC_LABEL = "SYNTHETIC — NOT BANJA LUKA"
@@ -67,12 +73,12 @@ def fresh_generated_path(root, value):
     return path
 
 
-def glb(faces, kind):
+def glb(faces, kind, exchange=LEGACY_EXCHANGE):
     index = {}
     ordered_faces = [
         [
-            index.setdefault(engine_coordinates(vertex), len(index))
-            for vertex in reversed(face)
+            index.setdefault(local_to_gltf(vertex, exchange), len(index))
+            for vertex in (face if exchange == GEOGRAPHIC_EXCHANGE else reversed(face))
         ]
         for face in faces
     ]
@@ -87,6 +93,22 @@ def glb(faces, kind):
         )
     )
     return mesh.export(file_type="glb")
+
+
+def reframe_legacy_glb(data):
+    """Convert a sealed generated mesh without re-authoring its source geometry."""
+    mesh = check_mesh(
+        trimesh.load(BytesIO(data), file_type="glb", force="mesh", process=False)
+    )
+    vertices = mesh.vertices.copy()
+    vertices[:, 2] *= -1
+    converted = trimesh.Trimesh(
+        vertices=vertices,
+        faces=mesh.faces[:, ::-1],
+        visual=mesh.visual.copy(),
+        process=False,
+    )
+    return check_mesh(converted).export(file_type="glb")
 
 
 def check_mesh(mesh):
@@ -157,6 +179,7 @@ def generate_scene(staging, source, original, patches, roads, buildings, *, corr
         else mesh_features(roads, buildings, source.origin)
     )
     label = corridor["label"] if corridor else SYNTHETIC_LABEL
+    exchange = GEOGRAPHIC_EXCHANGE if corridor else LEGACY_EXCHANGE
     for stable_id, faces in meshes:
         feature = known.get(stable_id)
         fixed = isinstance(feature, BuildingFeature)
@@ -168,7 +191,7 @@ def generate_scene(staging, source, original, patches, roads, buildings, *, corr
         if fixed and feature.height_m is None:
             confidence = "PLACEHOLDER"
         kind = feature.kind if feature is not None else "ground"
-        model = glb(faces, kind)
+        model = glb(faces, kind, exchange)
         file = f"meshes/{digest(stable_id.encode())}.glb"
         (staging / file).write_bytes(model)
         vertices = np.asarray(faces).reshape(-1, 3)
@@ -242,7 +265,7 @@ def generate_scene(staging, source, original, patches, roads, buildings, *, corr
         "origin": source.origin.model_dump(),
         "elevation_status": "FLAT_PROVISIONAL_Z0",
         "unreal_units_per_meter": 100,
-        "exchange_coordinates": "glTF metres: X east, Y up, Z north",
+        "exchange_coordinates": exchange,
         "source_sha256": digest(original),
         "normalized_sha256": digest(normalized),
         "patch_set_sha256": digest(
@@ -353,9 +376,11 @@ def validate_scene(manifest_path):
             raise ValueError("Mesh greybox material differs from the catalog category")
         if len(mesh.faces) != item.face_count:
             raise ValueError("Mesh face count mismatch")
-        (x0, y0, z0), (x1, y1, z1) = item.bounds_m
         if not np.allclose(
-            mesh.bounds, [[x0, z0, y0], [x1, z1, y1]], atol=0.0001, rtol=0
+            mesh.bounds,
+            gltf_bounds_m(item.bounds_m, scene.exchange_coordinates),
+            atol=0.0001,
+            rtol=0,
         ):
             raise ValueError("Mesh coordinates differ from catalog bounds")
         if item.kind in {"road", "ground"} and not np.all(
