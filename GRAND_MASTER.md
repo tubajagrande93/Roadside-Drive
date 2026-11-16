@@ -35,8 +35,9 @@ Use the [developer setup](README.md#set-up-a-local-checkout) for Python/GIS and 
 - 2026-11-15, D003. Preserve untracked product files outside the infrastructure commit. GitHub reported no existing main ref at discovery.
 - 2026-11-16, D004. The operator approved the project foundation for public main in INIT 00B. Normalize the Android File Server settings for publication and preserve the original locally. Gate 01 implementation remains a separate task.
 - 2026-11-16, D005. The operator authorized standing GitHub publication in [.agent_rules/30-evidence-and-publication.md](.agent_rules/30-evidence-and-publication.md), including the isolated public handoff archive. This supersedes D002’s pending authorization for remote handoffs.
-- 2026-11-16, D006. Gate 01 preserves a read-only source snapshot, applies explicit versioned corrections, and derives a disposable ScenePackage. Unreal transforms use one local metric origin and one centimeters-per-meter conversion. Independently test native orientation, scale and collision. Live geographic requests require a scoped operator OSM GO.
-- 2026-11-16, D007. Keep the runtime spectator and inspection in Gate 01. Move live OSM and the approximately 2.2 km corridor to Gate 02. Use the smallest meaningful development smoke test and record verification separately from implementation and operator acceptance.
+- 2026-11-16, D006. Adopt the standing [Code Modularity Policy](CODE_MODULARITY_POLICY.md): source-owner separation before overgrowth, review at 400 lines, refactor assessment at 600, and a justified-exception growth gate at 800 hand-maintained production lines. Line count is an architectural maintainability signal, not a runtime performance metric. Read it from AGENTS.md at source-edit task startup.
+- 2026-11-16, D007. Gate 01 preserves a read-only source snapshot, applies explicit versioned corrections, and derives a disposable ScenePackage. Unreal transforms use one local metric origin and one centimeters-per-meter conversion. Independently test native orientation, scale and collision. Live geographic requests require a scoped operator OSM GO.
+- 2026-11-16, D008. Keep the runtime spectator and inspection in Gate 01. Move live OSM and the approximately 2.2 km corridor to Gate 02. Use the smallest meaningful development smoke test and record verification separately from implementation and operator acceptance.
 
 ## GM-009 Milestones and baseline
 
@@ -48,7 +49,7 @@ B0 snapshot was an unborn main with no indexed files. The first tracked bootstra
 
 ## GM-011 Agent operating laws
 
-Start with [AGENTS.md](AGENTS.md). Follow the five rule layers and route this document via the index. Host startup compliance depends on whether it loads repository instructions.
+Start with [AGENTS.md](AGENTS.md). Follow the five UAOS-B1 rule layers plus the mandatory [Code Modularity Policy](CODE_MODULARITY_POLICY.md) for code changes, and route this document via the index. Host startup compliance depends on whether it loads repository instructions.
 
 ## GM-012 Continuity contract
 

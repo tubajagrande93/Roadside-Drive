@@ -20,3 +20,5 @@ Source height stays null when unknown. The visual shell uses an explicit 6 m pla
 The generated level installs `ARoadsideSpectatorGameMode` as its level-specific override. The pawn has a camera and no collision body. `ARoadsideSpectatorPawn::ApplyFlightInput` is shared by player input and PIE smoke. It samples only designated road and ground feature actors at the proposed XY and enforces a configurable vertical clearance. It can pass through buildings without using them as floors.
 
 `ARoadsideWorldFeatureActor` binds the package catalog to native actor Details. Inspect dimensions and positions in metres and retain the catalog ID, coordinate reference, source type and confidence. Package source and corrections remain authoritative for rebuilds.
+
+The 401-line editor bridge was reviewed under the standing [Code Modularity Policy](../../CODE_MODULARITY_POLICY.md). It stays the native import and validation entry point for this pilot. Gameplay movement and inspection metadata live in the C++ module. Review separating native verification from import when Gate 02 expands the bridge.
