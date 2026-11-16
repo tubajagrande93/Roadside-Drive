@@ -1,32 +1,41 @@
 # Latest public handoff
 
-[Immutable record](history/20261116T020725Z_RD-G03-HARVEST_9897d5d.md)
+[Immutable record](history/20261116T070743Z_RD-G03-MIRROR-FIX_dfb7d01.md)
 
-# Roadside Drive — Gate 03 environment harvest
+# Roadside Drive — Gate 03 geographic handedness correction
 
-- Task and UTC: RD-G03-CORRIDOR-RECONSTRUCTION-HARVEST · 20261116T020725Z
-- Technical status: COMPLETE_VERIFIED for the targeted Gate 03 scope
-- Operator acceptance of Gate 03 preview: PENDING. Gate 02 operator preview was deferred.
-- Local and verified remote source ref: `refs/heads/codex/gate03-environment` at `9897d5df284352acf81e87c89a1a9310d299dec4`
-- Published main baseline: `ee674878624f69322dd983dc122bd87c49b9eecd`. Concurrent local dependency edits were left intact.
-- [Separate Source Expansion Handoff](https://github.com/tubajagrande93/Roadside-Drive/blob/9897d5df284352acf81e87c89a1a9310d299dec4/source_atlas/G03_SOURCE_EXPANSION_HANDOFF.md) · [Runbook](https://github.com/tubajagrande93/Roadside-Drive/blob/9897d5df284352acf81e87c89a1a9310d299dec4/docs/world-builder/GATE_03_RUNBOOK.md) · [Evidence](https://github.com/tubajagrande93/Roadside-Drive/blob/9897d5df284352acf81e87c89a1a9310d299dec4/docs/world-builder/GATE_03_EVIDENCE.md)
+- Task and UTC · RD-G03-MIRROR-FIX · 20261116T070743Z
+- Technical status · COMPLETE_VERIFIED
+- Operator acceptance · PENDING
+- Source ref · `refs/heads/codex/gate03-environment`
+- Local source SHA and independently verified GitHub SHA · `dfb7d0126087f59279227dbc3bd0d5745439dde5`
+- GitHub Git transport and API confirmed the same source SHA and 101 identical source blobs.
+- Main remains at the accepted Gate 02 baseline while separate dependency work is present.
+- [Changed files](https://github.com/tubajagrande93/Roadside-Drive/commit/dfb7d0126087f59279227dbc3bd0d5745439dde5) · [Correction and native evidence](https://github.com/tubajagrande93/Roadside-Drive/blob/dfb7d0126087f59279227dbc3bd0d5745439dde5/docs/world-builder/G03_ORIENTATION_FIX.md) · [Source Expansion Handoff](https://github.com/tubajagrande93/Roadside-Drive/blob/dfb7d0126087f59279227dbc3bd0d5745439dde5/source_atlas/G03_SOURCE_EXPANSION_HANDOFF.md)
 
-## Verified acquisition and scene
+## First divergence and correction
 
-The operator-approved route is 2,145.684 m. The 12 bounded semantic OSM responses include the southern building tile recovered through a July 2026 Kumi mirror after two HTTP 502 responses from FOSSGIS. The immutable Source Expansion Handoff records the exact plan fingerprint and all response hashes. The official Overture STAC release 2026-10-21.0 returned 3,788 building, 7 part and 2,215 place features before the local polygon filter. Three individual Commons references have verified license and SHA-256.
+The operator reported Park Mladen Stojanović on the right when moving from START toward the city centre. The WGS84 → EPSG:32633 → local east/north/up chain and the operator-approved journey were correct. Export mapped ENU metres to glTF east/up/north. Unreal Interchange produced east/north/up centimetres in an axis system where the viewer's right is positive Y when looking along +X. This reflected the corridor, park, roads, buildings and surroundings relative to travel.
 
-The final ScenePackage SHA-256 is `4eaa05f355043fb78083f536a2bc935823eda963b65f62b662bbbf994cdb89a6`. It contains 633 features: 512 buildings, 28 roads, one retained floor, one wider context surface, 25 park groups and 22 groups each of vegetation, paths and street details. The station inventory assigns 352 left and 648 right candidate buildings over 22 × 2 cells, one cell with no source features. 903 overlapping Overture candidates linked to OSM and 42 overlap reviews are queued. Of 510 new/refined building records, 3 use OSM height tags, 1 an Overture height, 155 level-based estimates and 351 a 7 m placeholder. Roofs and facades are still provisional. Park and Boska have distinct mapped geometry; the two cathedrals retain distinct identities.
+Geographic GLBs now encode east/up/south with matching winding. Unreal receives east/south/up at 100 cm per metre with identity actor scale. START yaw derives from the directed road. Regeneration reused the archived bounded source and approved corridor. Only the generated corridor was rebuilt and reimported into a new isolated project. The original map and correction material remain available.
 
-## Native and preservation checks
+## Observed evidence
 
-Unreal 5.7.4 Intel built and reopened `/Game/RoadsideDrive/Levels/L_RD_G03_Corridor`. The final viewport rendered the three corridor views, Park Mladen Stojanović and Boska. An editor point sample recorded 57.73 FPS. The first render showed paths beyond the context ground; geometry is now clipped at the approved polygon and the final viewport was repeated.
+| Control | Archived native right-axis m | Corrected native right-axis m | Corrected side |
+| --- | ---: | ---: | --- |
+| Park Mladen Stojanović | 110.277 | −110.277 | Left |
+| Boska | 83.773 | −83.773 | Left |
+| Gospodska / Veselina Masleše midpoint | 61.445 | −61.445 | Left |
+| Hram Hrista Spasitelja | 37.160 | −37.160 | Left |
+| Building OSM way/1349089233 | −34.115 | 34.115 | Right |
+| START parallel road OSM way/785905277 | 1.888 | −1.888 | Left |
 
-The native 100 m control measured 10,000 cm. All 71 ordered road samples remained at 160 cm clearance. The pawn passed through a building and used the same fallback. Native PlayerController inputs verified WASD, mouse, Space, Ctrl, Shift and wheel. The route frame, all 183 retained IDs and road/floor hashes match Gate 02; a separate width-patch replay also retained all 183 base mesh hashes and the patch-set hash. The existing Gate 02 map and assets stayed intact.
+The generated Gospodska triangles cover its source control. Unreal verified the matching native groups and the middle-road and off-map collision traces. Intel Mac UE 5.7.4 built and imported successfully. The possession check measured a heading dot of 1.0, zero horizontal spawn error and 250 cm forward toward END. All 71 route samples measured 160 cm above the floor. Keyboard, mouse, speed control, passage through walls and both fallback floor probes passed. Reopening the saved level confirmed 633 distinct actors, road/building inspection capture and five viewport images.
 
-Twenty-one focused project tests, 12 kit tests, Ruff, AgentOps verify and localized deterministic replay passed. Git and the GitHub API independently matched the branch tip and all 96 source blobs. Raw sources, photographs, screenshots, maps and logs stayed local.
+The corrected package replayed byte-identically at SHA-256 `fa6150f0ea7debd025b3dea2464e73cb19b3beb99b8526ed235ab29473cefe18`. The approved route and all 633 stable IDs, geographic bounds, and source/correction relationships were preserved. A separate replay of the earlier width correction confirmed 183 exact signed reframes and the original patch SHA. Gate 01's synthetic fixture retained its original SHA.
 
-## Source limitations
+The final source passed all 47 pytest cases, native evidence checks, preservation replay, Ruff and AgentOps verification. An earlier cold-start test identified a missing heading in CURRENT_STATE and a reopen attempt used a separate inspection directory. Both were corrected and passed on repeat.
 
-OpenBuildingMap tile 120233 is listed at 1.0 GB and remained outside the capture budget. Official LoD2 is NEEDS_ACCESS. KartaView HTTPS calls failed. Mapillary and OpenTopography were not run without authorized credentials. These sources did not contribute geometry.
+## NEXT_EXACT_ACTION
 
-NEXT_EXACT_ACTION: Open L_RD_G03_Corridor in the saved isolated project and review the Park Mladen Stojanović and Boska viewpoints before selecting the first measured facade or roof correction. Integrate the verified source branch after the concurrent main checkout work is safe to reconcile.
+Open the generated `data/processed/world_builder/gate03-native-oriented/project/RoadsideDrive.uproject` and play `L_RD_G03_Corridor` from START. Confirm the park is left while travelling toward END before refinement.
