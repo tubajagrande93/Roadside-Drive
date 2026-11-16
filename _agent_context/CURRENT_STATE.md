@@ -2,8 +2,8 @@ CONTEXT_SCHEMA: UAOS-B1
 VERIFIED_SOURCE_REF: refs/heads/main
 VERIFIED_SOURCE_SHA: 615daa27b6d80a7fb87cdad87aeacc415853b8d3
 VERIFIED_UTC: 2026-11-15T23:27:11.728653Z
-CURRENT_TASK_ID: GITHUB-PUBLICATION
-CURRENT_TASK_STATUS: COMPLETE
+CURRENT_TASK_ID: RD-G01-WORLD-FOUNDATION
+CURRENT_TASK_STATUS: PARTIAL
 LATEST_HANDOFF: https://github.com/tubajagrande93/Roadside-Drive/blob/agent-output/AgentOutput/LATEST.md
 OPERATOR_ACCEPTANCE: PENDING
 
@@ -13,16 +13,16 @@ The verified SHA above is the independently published INIT 00B project baseline.
 
 # Candidate work
 
-ROADSIDE DRIVE — GATE 01 WORLD BUILDER FOUNDATION is next. Prepare a bounded source and license inventory for a 500–1000 m Banja Luka pilot. The current tree supplies configuration and dependencies for future ingestion, projection, geometry, Unreal integration and spectator tooling.
+The dedicated Gate 01 development ref contains a versioned, deterministic synthetic World Builder with patch replay, ScenePackage validation, an OSM GO guard and an isolated Unreal editor bridge. The package is visibly synthetic. The verified main baseline and the development checkpoint remain separately identifiable through the public handoff.
 
 # Open blockers
 
-UE-01 native Unreal testing and DATA-01 data provenance remain open for future development. The candidate active Metal shader profile needs a native Intel check. See [issues](KNOWN_ISSUES.md) and the [manual smoke test](../README.md#open-unreal-on-macos).
+Live Banja Luka data requires DATA-01 closed with a reviewed 500–1000 m AOI, source rights and explicit OSM GO. Editor freecam, runtime spectator and interactive Intel performance remain distinct from the native import and trace checks. See the [operator QA](../docs/world-builder/OPERATOR_QA.md).
 
 # Current task
 
-Standing publication authority is recorded in the [publication rule](../.agent_rules/30-evidence-and-publication.md). Public continuity uses the separate agent-output ref. Detailed evidence stays local. See the [architecture](ARCHITECTURE_MAP.md) and [master index](GRAND_MASTER_INDEX.md).
+RD-G01 World Builder Foundation. Read the [architecture](../docs/world-builder/ARCHITECTURE.md), [gates](../docs/world-builder/PHASE_GATES.md) and latest public handoff.
 
 # Next exact action
 
-Start RD-G01 with source inventory and the offline synthetic contract. Read the latest public handoff for the exact continuation. Live geodata acquisition requires a separate OSM GO.
+Open the isolated synthetic pilot level in Unreal Editor and exercise editor-only navigation and object inspection. Confirm the actual pilot corridor and provenance before requesting OSM GO.

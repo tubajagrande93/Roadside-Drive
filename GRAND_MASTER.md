@@ -35,6 +35,7 @@ Run `python3 -m unittest discover -s tests -p test_agentops_contract.py -v` and 
 - 2026-11-15, D003. Preserve untracked product files outside the infrastructure commit. GitHub reported no existing main ref at discovery.
 - 2026-11-16, D004. The operator approved the project foundation for public main in INIT 00B. Normalize the Android File Server settings for publication and preserve the original locally. Gate 01 implementation remains a separate task.
 - 2026-11-16, D005. The operator authorized standing GitHub publication in [.agent_rules/30-evidence-and-publication.md](.agent_rules/30-evidence-and-publication.md), including the isolated public handoff archive. This supersedes D002’s pending authorization for remote handoffs.
+- 2026-11-16, D006. Gate 01 preserves a read-only source snapshot, applies explicit versioned corrections, and derives a disposable ScenePackage. Unreal transforms use one local metric origin and one centimeters-per-meter conversion. Independently test native orientation, scale and collision. Live geographic requests require a scoped operator OSM GO.
 
 ## GM-009 Milestones and baseline
 

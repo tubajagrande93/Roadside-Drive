@@ -26,3 +26,7 @@ Contract harness owns bootstrap regressions, with ledger in the templates. There
 ## Unverified nodes
 
 Spatial schema, canonical CRS and transformations, world generation, editor runtime and simulation acceptance.
+
+## Gate 01 development source
+
+[World Builder architecture](../docs/world-builder/ARCHITECTURE.md) traces the source, correction, mesh, package and editor boundaries. These are feature-branch candidates. Exact verified branch and test evidence are in the public handoff.

@@ -1,0 +1,9 @@
+{
+  "title": "Banja Luka first road corridor",
+  "candidate_corridor": "Potential segment near Ulica kralja Petra I Karadjordjevica (unverified)",
+  "source_crs": "EPSG:4326",
+  "projected_crs_candidate": "EPSG:32633",
+  "intended_centerline_length_m": [500, 1000],
+  "centerline_wgs84": null,
+  "polygon_wgs84": null
+}

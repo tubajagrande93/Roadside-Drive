@@ -3,6 +3,7 @@
 | ID | Status | Owner | Reproduction / next evidence |
 | --- | --- | --- | --- |
 | UE-01 | NOT_RUN | Unreal owner TO_VERIFY | Follow the README manual smoke test in a disposable checkout. Engine Build.version, the Intel slice, plugins and map were verified statically. Test the configured Metal SM6 profile on Intel. |
+| G01-INTERACTIVE | OPEN | Gate 01 Unreal | Native import, bounds and collision in the isolated editor passed. Confirm the visual viewport, flycam and runtime spectator independently. |
 | DATA-01 | OPEN | World Builder owner TO_VERIFY | Source-license and phase intent review before any real geodata ingestion. |
 
 ## Resolved infrastructure issues

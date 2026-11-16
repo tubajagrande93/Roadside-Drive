@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "world_id": "synthetic-pilot",
+  "source_crs": "SYNTHETIC_METRIC",
+  "projected_crs": "EPSG:32633",
+  "origin": {"east_m": 0, "north_m": 0, "z_m": 0},
+  "provenance": {
+    "title": "Designed test crossroads with no geographic relationship",
+    "dataset_kind": "SYNTHETIC",
+    "source_uri": "LOCAL_FIXTURE",
+    "license_id": "PROJECT_TEST_DATA",
+    "attribution": "Roadside Drive synthetic test data",
+    "derivative_status": "SYNTHETIC"
+  },
+  "roads": [
+    {"stable_id": "road-east-west", "source_elements": ["synthetic:road:1"], "centerline_m": [[-50, 0], [50, 0]], "width_m": 8, "width_basis": "SYNTHETIC_DESIGN", "confidence": "VERIFIED"},
+    {"stable_id": "road-north-south", "source_elements": ["synthetic:road:2"], "centerline_m": [[0, -50], [0, 50]], "width_m": 6, "width_basis": "SYNTHETIC_DESIGN", "confidence": "VERIFIED"}
+  ],
+  "buildings": [
+    {"stable_id": "building-001", "source_elements": ["synthetic:building:1"], "footprint_m": [[10, 10], [25, 10], [25, 20], [10, 20]], "height_m": 5, "height_basis": "SYNTHETIC_DESIGN", "confidence": "VERIFIED"},
+    {"stable_id": "building-002", "source_elements": ["synthetic:building:2"], "footprint_m": [[-25, 10], [-10, 10], [-10, 20], [-25, 20]], "height_m": null, "height_basis": "UNKNOWN", "confidence": "PLACEHOLDER"},
+    {"stable_id": "building-003", "source_elements": ["synthetic:building:3"], "footprint_m": [[10, -30], [22, -30], [22, -12], [10, -12]], "height_m": 7, "height_basis": "SYNTHETIC_DESIGN", "confidence": "VERIFIED"}
+  ]
+}

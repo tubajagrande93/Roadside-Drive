@@ -57,3 +57,7 @@ uv run --locked --no-sync python tools/agentops.py powerbrain --task 'ROADSIDE D
 ```
 
 Read the [verified public handoff](https://github.com/tubajagrande93/Roadside-Drive/blob/agent-output/AgentOutput/LATEST.md) for GitHub-only continuation. Detailed local plans, checkpoints and raw evidence are ignored. Follow the [publication policy](.agent_rules/30-evidence-and-publication.md) for source and report branches.
+
+## Gate 01 synthetic preview
+
+On a checkout containing the Gate 01 development work, follow the [operator QA](docs/world-builder/OPERATOR_QA.md) to build and verify the local synthetic ScenePackage. [Architecture](docs/world-builder/ARCHITECTURE.md), [sources and licenses](docs/world-builder/SOURCES_AND_LICENSES.md) and [phase gates](docs/world-builder/PHASE_GATES.md) describe its boundaries. The public handoff identifies the current verified development ref.

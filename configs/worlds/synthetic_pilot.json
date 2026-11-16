@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "fixture": "tests/fixtures/world/mini_crossroads.json",
+  "deterministic_seed": 0
+}
