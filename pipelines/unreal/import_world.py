@@ -63,7 +63,12 @@ def read_scene():
         and scene["provenance"]["dataset_kind"] == "SYNTHETIC"
     )
     osm = (
-        scene["label"] in (corridor_editor.CANDIDATE, corridor_editor.ACCEPTED)
+        scene["label"]
+        in (
+            corridor_editor.CANDIDATE,
+            corridor_editor.ACCEPTED,
+            corridor_editor.HARVEST,
+        )
         and scene["provenance"]["dataset_kind"] == "OSM"
         and scene["provenance"]["license_id"] == "ODbL-1.0"
     )
@@ -231,8 +236,14 @@ def run(mode):
         }
     folder, scene, files = read_scene()
     route = files["validation"].get("corridor")
+    harvest = files["validation"].get("harvest")
     level_path = corridor_editor.LEVEL if route else LEVEL
     generated = corridor_editor.GENERATED if route else GENERATED
+    if harvest:
+        level_path, generated = (
+            corridor_editor.HARVEST_LEVEL,
+            corridor_editor.HARVEST_GENERATED,
+        )
     features = {
         item["stable_id"]: item
         for key in ("roads", "buildings")
@@ -261,7 +272,8 @@ def run(mode):
         )
         if actor is None:
             raise RuntimeError(f"Could not place generated mesh {stable_id}")
-        actor.set_actor_label(f"{scene['label']} / {stable_id}")
+        display = harvest["labels"].get(stable_id, stable_id) if harvest else stable_id
+        actor.set_actor_label(f"{scene['label']} / {display}")
         actor.set_editor_property(
             "tags",
             [
@@ -272,7 +284,11 @@ def run(mode):
         )
         component = actor.get_component_by_class(unreal.StaticMeshComponent)
         component.set_static_mesh(mesh)
-        component.set_collision_profile_name("BlockAll")
+        component.set_collision_profile_name(
+            "BlockAll"
+            if item["kind"] in {"road", "building", "ground"}
+            else "NoCollision"
+        )
         low, high = item["bounds_m"]
         origin = scene["origin"]
         actor.initialize_catalog(
@@ -333,6 +349,10 @@ def run(mode):
     )
     if route:
         preview = corridor_editor.preview(actors, route, scene["label"])
+        if harvest:
+            preview["landmark_viewpoints"] = corridor_editor.harvest_viewpoints(
+                actors, harvest
+            )
     else:
         preview = synthetic_preview(actors, road_actor)
     inspector = {

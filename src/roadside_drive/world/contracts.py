@@ -119,7 +119,9 @@ class CorrectionPatch(Contract):
 
 class ObjectRecord(Contract):
     stable_id: Identifier
-    kind: Literal["road", "building", "ground"]
+    kind: Literal[
+        "road", "building", "ground", "park", "path", "vegetation", "street", "context"
+    ]
     source_elements: tuple[str, ...]
     source_hash: Digest
     file: str

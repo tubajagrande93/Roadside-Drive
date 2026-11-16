@@ -71,6 +71,7 @@ def main():
     parser.add_argument("--engine", type=Path, required=True)
     parser.add_argument("--scene", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--artifact-root", type=Path, default=ROOT)
     parser.add_argument("--timeout", type=int, default=600)
     parser.add_argument(
         "--mode", choices=("probe", "import", "spectator"), default="spectator"
@@ -81,7 +82,15 @@ def main():
     executable = engine / "Binaries/Mac/UnrealEditor-Cmd"
     scene = args.scene.resolve(strict=True)
     output = args.output.absolute()
-    boundary = ROOT / "data/processed/world_builder"
+    artifact_root = args.artifact_root.resolve(strict=True)
+    if (
+        not (artifact_root / ".git").exists()
+        or not (
+            artifact_root / "apps/unreal/RoadsideDrive/RoadsideDrive.uproject"
+        ).is_file()
+    ):
+        parser.error("artifact root must be a Roadside Drive checkout")
+    boundary = artifact_root / "data/processed/world_builder"
     if (
         boundary not in output.parents
         or output.resolve() != output

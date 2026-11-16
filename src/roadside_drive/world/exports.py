@@ -32,11 +32,17 @@ from .projections import engine_coordinates, projected_crs
 MESH_NAME = re.compile(r"meshes/[a-f0-9]{64}\.glb\Z")
 SYNTHETIC_LABEL = "SYNTHETIC — NOT BANJA LUKA"
 CORRIDOR_LABEL = "OSM BANJA LUKA — PROVISIONAL GREYBOX"
+G03_LABEL = "BANJA LUKA — SOURCE-BACKED ENVIRONMENT"
 CANDIDATE_LABEL = "OSM BANJA LUKA — ROUTE CANDIDATE"
 GREYBOX_COLOURS = {
     "road": [57, 63, 70, 255],
     "building": [174, 177, 182, 255],
     "ground": [114, 124, 118, 255],
+    "context": [109, 117, 108, 255],
+    "park": [75, 119, 69, 255],
+    "path": [173, 157, 129, 255],
+    "vegetation": [42, 96, 51, 255],
+    "street": [96, 82, 58, 255],
 }
 
 
@@ -281,7 +287,7 @@ def validate_scene(manifest_path):
         and scene.provenance.license_id == "PROJECT_TEST_DATA"
     )
     osm = (
-        scene.label in {CORRIDOR_LABEL, CANDIDATE_LABEL}
+        scene.label in {CORRIDOR_LABEL, CANDIDATE_LABEL, G03_LABEL}
         and scene.provenance.dataset_kind == "OSM"
         and scene.provenance.license_id == "ODbL-1.0"
         and bool(scene.provenance.attribution)

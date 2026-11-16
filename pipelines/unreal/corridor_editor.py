@@ -10,6 +10,9 @@ LEVEL = "/Game/RoadsideDrive/Levels/L_RD_G02_Corridor"
 GENERATED = "/Game/RoadsideDrive/Generated/G02"
 CANDIDATE = "OSM BANJA LUKA — ROUTE CANDIDATE"
 ACCEPTED = "OSM BANJA LUKA — PROVISIONAL GREYBOX"
+HARVEST = "BANJA LUKA — SOURCE-BACKED ENVIRONMENT"
+HARVEST_LEVEL = "/Game/RoadsideDrive/Levels/L_RD_G03_Corridor"
+HARVEST_GENERATED = "/Game/RoadsideDrive/Generated/G03"
 
 
 def preview(actors, route, label):
@@ -51,7 +54,10 @@ def preview(actors, route, label):
     )
     caption.set_actor_label("RD G02 scope and OSM attribution")
     text = caption.get_component_by_class(unreal.TextRenderComponent)
-    text.set_text(unreal.Text(f"{label}\n© OpenStreetMap contributors · ODbL 1.0"))
+    attribution = "© OpenStreetMap contributors · ODbL 1.0"
+    if label == HARVEST:
+        attribution += " · Overture Maps Foundation"
+    text.set_text(unreal.Text(f"{label}\n{attribution}"))
     text.set_world_size(55)
 
     ruler = actors.spawn_actor_from_class(
@@ -223,3 +229,24 @@ def verify_input(pawn, player):
     ):
         raise RuntimeError(f"PIE PlayerController controls failed: {checks}")
     return checks
+
+
+def harvest_viewpoints(actors, harvest):
+    views = []
+    for name, point in sorted(harvest["landmark_positions_local_m"].items()):
+        simplified = name.casefold()
+        if not any(
+            fragment in simplified
+            for fragment in ("stojan", "boska", "боска", "стојан")
+        ):
+            continue
+        x, y = (axis * 100 for axis in point)
+        rotation = unreal.Rotator(pitch=-65, yaw=-135)
+        view = actors.spawn_actor_from_class(
+            unreal.CameraActor, unreal.Vector(x + 5500, y + 5500, 12000), rotation
+        )
+        if view is None:
+            raise RuntimeError(f"Unable to place viewpoint for {name}")
+        view.set_actor_label(f"RD G03 {name} viewpoint")
+        views.append(name)
+    return views

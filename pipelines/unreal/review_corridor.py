@@ -28,8 +28,12 @@ def run():
     preflight = os.environ.get("RD_G02_KIT_PREFLIGHT")
     if preflight:
         runpy.run_path(preflight)
+    gate = os.environ.get("RD_CORRIDOR_REVIEW_GATE", "G02")
+    if gate not in {"G02", "G03"}:
+        raise RuntimeError("Unknown corridor level profile")
+    level_path = LEVEL.replace("G02", gate)
     level = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
-    if not level.load_level(LEVEL):
+    if not level.load_level(level_path):
         raise RuntimeError("Could not reopen the serialized G02 level")
     editor = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
     world = editor.get_editor_world()
@@ -45,7 +49,14 @@ def run():
         for actor in all_actors
         if isinstance(actor, unreal.CameraActor)
     }
-    cameras = [found[f"RD G02 {name} viewpoint"] for name in NAMES]
+    selected = [(name, found[f"RD G02 {name} viewpoint"]) for name in NAMES]
+    if gate == "G03":
+        selected.extend(
+            (f"LANDMARK{index}", camera)
+            for index, (name, camera) in enumerate(sorted(found.items()))
+            if name.startswith("RD G03 ")
+        )
+    names, cameras = zip(*selected, strict=True)
     features = [
         actor
         for actor in all_actors
@@ -79,7 +90,7 @@ def run():
 
     result = {
         "status": "PENDING",
-        "level": LEVEL,
+        "level": level_path,
         "unique_feature_actors": len(ids),
         "selected_issue_contexts": selected,
         "screenshots": {},
@@ -113,7 +124,7 @@ def run():
                 result["status"] = "NATIVE_REOPEN_AND_RENDER_PASS"
                 stop()
                 return
-            filename = out / f"{NAMES[shot_index].lower()}.png"
+            filename = out / f"{names[shot_index].lower()}.png"
             if screenshot is None:
                 screenshot = unreal.AutomationLibrary.take_high_res_screenshot(
                     1440, 900, str(filename), cameras[shot_index], delay=0.25
@@ -123,7 +134,7 @@ def run():
                 and filename.is_file()
                 and filename.stat().st_size > 0
             ):
-                result["screenshots"][NAMES[shot_index]] = filename.name
+                result["screenshots"][names[shot_index]] = filename.name
                 shot_index += 1
                 screenshot = None
         except (KeyError, RuntimeError, TypeError, AttributeError, OSError) as error:

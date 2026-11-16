@@ -41,6 +41,8 @@ Use the [developer setup](README.md#set-up-a-local-checkout) for Python/GIS and 
 
 - 2026-11-16, D009. Use the operator-approved named Banja Luka axis for Gate 02. Bind the exact OSM query and route review to separate local approvals. Retain the original capture, apply corrections through the existing patch writer and publish the reproducible source with attribution. Keep generated and review evidence local unless licensed for distribution.
 
+- 2026-11-16, D010. Gate 03 enriches the approved corridor from localized provider captures. Keep the approved road and correction identities and retain source-vintage and attribute-confidence evidence in the separate [Source Expansion Handoff](source_atlas/G03_SOURCE_EXPANSION_HANDOFF.md).
+
 ## GM-009 Milestones and baseline
 
 B0 snapshot was an unborn main with no indexed files. The first tracked bootstrap commit captures this snapshot. INIT 00B adds the validated Unreal and Python foundation. Subsequent source identity and verification belong in [current state](_agent_context/CURRENT_STATE.md) and local immutable reports.
