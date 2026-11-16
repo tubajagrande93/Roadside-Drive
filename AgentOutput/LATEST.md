@@ -1,20 +1,35 @@
 # Latest public handoff
 
-[Immutable record](history/20261115T234706Z_GITHUB-PUBLICATION_31431f9.md)
+[Immutable record](history/20261116T000952Z_RD-G01_959021c.md)
 
-# Roadside Drive — GitHub publication policy
+# Roadside Drive — Gate 01 synthetic milestone
 
-- Task: GITHUB-PUBLICATION
-- UTC: 20261115T234706Z
-- Status: COMPLETE_VERIFIED
-- Source ref: refs/heads/main
-- Local / independently verified remote source SHA: 31431f98135ccd28553e3cf9f31c3037a8c28c76
-- Source baseline: 615daa27b6d80a7fb87cdad87aeacc415853b8d3
+- Task: RD-G01-WORLD-FOUNDATION
+- UTC: 20261116T000952Z
+- Gate 01 status: PARTIAL
+- Source ref: refs/heads/codex/gate01-world-foundation
+- Local and independently verified remote source SHA: 959021c19074536dc55ffb2e984b34665eca3dba
+- Integrated main remains at 31431f98135ccd28553e3cf9f31c3037a8c28c76
+- Operator acceptance: PENDING
 
-Standing publication rules were integrated into the existing UAOS-B1 policy and startup documents. Source is published by fast-forward. Sanitized checkpoint summaries live in the isolated agent-output history.
+## Verified
 
-Verification on 31431f98135ccd28553e3cf9f31c3037a8c28c76: 24/24 AgentOps contract tests, AgentOps verify, bootstrap dry-run and Ruff each exited 0. The remote SHA and all source blobs were verified independently using Git transport and the GitHub API.
+The offline fixture generated two roads, three buildings and flat provisional ground. Two builds and a separate validation agreed on ScenePackage digest 68870c4cdbdfc580729564e4f14326d1f1eece4a6836690b885c79d4e4e975e3. Reversible corrections preserved source bytes and rejected stale inputs. The synthetic label is SYNTHETIC — NOT BANJA LUKA.
 
-Gate 01 engineering is tracked separately from this policy checkpoint. INIT 00B verified the locked Python 3.12 project setup. Native Unreal execution and any Banja Luka data acquisition remain open. Operator acceptance is PENDING.
+UE 5.7.4 full-editor automation imported six mesh objects and saved /Game/RoadsideDrive/Levels/L_RD_WorldPilot in a disposable project. The 100 m road measured 10,000 cm. Native collision hit the road and missed the outside control. The headless commandlet hit a Slate assertion. The first full-editor import found a Y sign mismatch and the corrected GLB export passed.
 
-NEXT_EXACT_ACTION: Continue RD-G01 on the dedicated development branch with the offline synthetic fixture and validation. Real geodata requires OSM GO.
+## Executed commands on the source SHA above
+
+- .venv/bin/python -m pytest -q tests/world — 11 tests, exit 0
+- .venv/bin/python -m unittest discover -s tests -p test_agentops_contract.py -v — 24 tests, exit 0
+- .venv/bin/ruff check src scripts tests/world pipelines/unreal tools tests/test_agentops_contract.py — exit 0
+- python3 tools/agentops.py verify and bootstrap --dry-run — exit 0
+- python scripts/world_builder.py build-fixture twice, validate and compare manifests — exit 0
+- python scripts/world_builder.py ingest-osm --config configs/worlds/banja_luka_pilot.json --allow-network — expected exit 2 without approval. No geographic data requested.
+- pipelines/unreal/run_editor_smoke.py --mode import with the verified fixture — exit 0 and native result present
+
+## Open
+
+Rendered editor opened the correct level and showed the six synthetic actors in the Outliner. The initial unlit scene was dark in Lit mode and automated input did not prove keyboard navigation. Preview lighting and initial framing are being tested. Interactive flycam, runtime spectator and real Intel performance remain open. The Banja Luka polygon and centerline are unset, which keeps OSM GO disabled.
+
+NEXT_EXACT_ACTION: Finish the disposable preview lighting and viewport proof, then confirm the pilot endpoints and source rights before requesting a bounded OSM GO.
