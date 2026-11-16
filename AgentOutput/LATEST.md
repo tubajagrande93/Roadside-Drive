@@ -1,36 +1,32 @@
 # Latest public handoff
 
-[Immutable record](history/20261116T012723Z_RD-G02-CORRIDOR_ee67487.md)
+[Immutable record](history/20261116T020725Z_RD-G03-HARVEST_9897d5d.md)
 
-# Roadside Drive — Gate 02 Banja Luka corridor
+# Roadside Drive — Gate 03 environment harvest
 
-- Task and UTC: RD-G02-CORRIDOR · 20261116T012723Z
-- Status: COMPLETE_VERIFIED
-- Route selection: OPERATOR_ACCEPTED
-- Operator acceptance of the native preview: PENDING
-- Gate 01 baseline: 9b37333ebcad3ff2511e0394d2bcb336d1443eea
-- Local main and independently verified origin/main and origin/codex/gate02-banja-luka: `ee674878624f69322dd983dc122bd87c49b9eecd`
+- Task and UTC: RD-G03-CORRIDOR-RECONSTRUCTION-HARVEST · 20261116T020725Z
+- Technical status: COMPLETE_VERIFIED for the targeted Gate 03 scope
+- Operator acceptance of Gate 03 preview: PENDING. Gate 02 operator preview was deferred.
+- Local and verified remote source ref: `refs/heads/codex/gate03-environment` at `9897d5df284352acf81e87c89a1a9310d299dec4`
+- Published main baseline: `ee674878624f69322dd983dc122bd87c49b9eecd`. Concurrent local dependency edits were left intact.
+- [Separate Source Expansion Handoff](https://github.com/tubajagrande93/Roadside-Drive/blob/9897d5df284352acf81e87c89a1a9310d299dec4/source_atlas/G03_SOURCE_EXPANSION_HANDOFF.md) · [Runbook](https://github.com/tubajagrande93/Roadside-Drive/blob/9897d5df284352acf81e87c89a1a9310d299dec4/docs/world-builder/GATE_03_RUNBOOK.md) · [Evidence](https://github.com/tubajagrande93/Roadside-Drive/blob/9897d5df284352acf81e87c89a1a9310d299dec4/docs/world-builder/GATE_03_EVIDENCE.md)
 
-## Route and source
+## Verified acquisition and scene
 
-The directed shortest and named-axis solutions both returned the same 2,145.684 m route along Dr Mladena Stojanovića and Kralja Petra I Karađorđevića. START snapped 4.494 m and END 1.590 m from the operator reference coordinates. The operator accepted the exact review SHA `46c52ad839e5f89d56573ea4834da2288939f47e498188a0b1e4f4fa0bab9666`. The accepted-route record SHA is `cb1686d0dc5efcbec747ea32e79516b397a119c8ddaa2993adb83288231a8adb`.
+The operator-approved route is 2,145.684 m. The 12 bounded semantic OSM responses include the southern building tile recovered through a July 2026 Kumi mirror after two HTTP 502 responses from FOSSGIS. The immutable Source Expansion Handoff records the exact plan fingerprint and all response hashes. The official Overture STAC release 2026-10-21.0 returned 3,788 building, 7 part and 2,215 place features before the local polygon filter. Three individual Commons references have verified license and SHA-256.
 
-Two Overpass polygon queries covered 1.8883 km². They captured 2,450 road nodes, 3,890 directed graph edges and 1,537 building footprints. The 2026-11-16 UTC OSM source times were 00:58:05 for roads and 00:59:05 for buildings. OSM graph SHA-256 `69a8222ee92a48f99b1333688245bb1cb87e2e9d307c34e8cf2d6f9c1f939e8e`. © OpenStreetMap contributors, ODbL 1.0. [Source license](https://www.openstreetmap.org/copyright)
+The final ScenePackage SHA-256 is `4eaa05f355043fb78083f536a2bc935823eda963b65f62b662bbbf994cdb89a6`. It contains 633 features: 512 buildings, 28 roads, one retained floor, one wider context surface, 25 park groups and 22 groups each of vegetation, paths and street details. The station inventory assigns 352 left and 648 right candidate buildings over 22 × 2 cells, one cell with no source features. 903 overlapping Overture candidates linked to OSM and 42 overlap reviews are queued. Of 510 new/refined building records, 3 use OSM height tags, 1 an Overture height, 155 level-based estimates and 351 a 7 m placeholder. Roofs and facades are still provisional. Park and Boska have distinct mapped geometry; the two cathedrals retain distinct identities.
 
-The accepted ScenePackage SHA-256 is `f0c0969d45e0085fd2db204c80d31b93713f38ca2bd706296b97c1ea676e7027`. It yielded 28 road surfaces, 154 buildings and one provisional floor. All 28 road widths use lane-count estimates. Of 154 shells, 152 use the unknown-height placeholder. The forward route includes two adjacent named parallel ways. The reverse drive route follows different streets. Grade is provisional.
+## Native and preservation checks
 
-## Native and correction evidence
+Unreal 5.7.4 Intel built and reopened `/Game/RoadsideDrive/Levels/L_RD_G03_Corridor`. The final viewport rendered the three corridor views, Park Mladen Stojanović and Boska. An editor point sample recorded 57.73 FPS. The first render showed paths beyond the context ground; geometry is now clipped at the approved polygon and the final viewport was repeated.
 
-UE 5.7.4 on Intel Metal compiled, imported and reopened `/Game/RoadsideDrive/Levels/L_RD_G02_Corridor` with 183 unique generated feature actors. Imported bounds matched the package. The native 100 m ruler measured 10,000 cm. START, MID and END viewport screenshots were rendered. A two-second editor sample was 58.15 FPS. A G02-only disposable project preserved the original project configuration and maps.
+The native 100 m control measured 10,000 cm. All 71 ordered road samples remained at 160 cm clearance. The pawn passed through a building and used the same fallback. Native PlayerController inputs verified WASD, mouse, Space, Ctrl, Shift and wheel. The route frame, all 183 retained IDs and road/floor hashes match Gate 02; a separate width-patch replay also retained all 183 base mesh hashes and the patch-set hash. The existing Gate 02 map and assets stayed intact.
 
-Native PIE held 160 cm over all 71 sampled road positions, traversed a building, ignored its roof and held a safe 148 cm world Z over the provisional ground and fallback. Actual Unreal PlayerController events verified WASD, mouse, Space, Ctrl, Shift and wheel. Measured Shift speed changed from 1,000 to 3,000 cm/s; wheel speed changed to 1,250 and restored. The first wall-time comparison was corrected to use game seconds.
+Twenty-one focused project tests, 12 kit tests, Ruff, AgentOps verify and localized deterministic replay passed. Git and the GitHub API independently matched the branch tip and all 96 source blobs. Raw sources, photographs, screenshots, maps and logs stayed local.
 
-Reopened road and building selections supplied stable source IDs, location and camera pose. Local reports included native selection and an optional local screenshot reference. Two builds with the same width patch had identical corrected hashes. The patch changed the road mesh and kept all six capture artifacts byte-identical. A stale source hash was rejected.
+## Source limitations
 
-## Reproduction and continuity
+OpenBuildingMap tile 120233 is listed at 1.0 GB and remained outside the capture budget. Official LoD2 is NEEDS_ACCESS. KartaView HTTPS calls failed. Mapillary and OpenTopography were not run without authorized credentials. These sources did not contribute geometry.
 
-The kit's 19 tests, 15 project world tests, focused Ruff and AgentOps verify passed. The accepted asset recipe and local native smoke passed. A clean clone at the exact commit, reusing the existing locked dependency environment, passed 15 world tests, AgentOps verify, Gate 01 fixture reproduction and Gate 02 zero-network query fingerprint regeneration. Git and the GitHub API independently matched both source refs and all 83 source blobs.
-
-Source, configs and QA are published. The local kit, third-party references, raw OSM, generated Unreal assets, logs and screenshots remain local. The [Gate 02 runbook](https://github.com/tubajagrande93/Roadside-Drive/blob/ee674878624f69322dd983dc122bd87c49b9eecd/docs/world-builder/GATE_02_RUNBOOK.md) and [32-gate evidence ledger](https://github.com/tubajagrande93/Roadside-Drive/blob/ee674878624f69322dd983dc122bd87c49b9eecd/docs/world-builder/GATE_02_EVIDENCE.md) document the continuation.
-
-NEXT_EXACT_ACTION: Open the saved L_RD_G02_Corridor for operator review and record the first measured geometry correction or explicit visual acceptance.
+NEXT_EXACT_ACTION: Open L_RD_G03_Corridor in the saved isolated project and review the Park Mladen Stojanović and Boska viewpoints before selecting the first measured facade or roof correction. Integrate the verified source branch after the concurrent main checkout work is safe to reconcile.
